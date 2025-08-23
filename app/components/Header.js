@@ -13,11 +13,6 @@ export default function Header() {
   const [searchQuery, setSearchQuery] = useState('');
   const [user, setUser] = useState(null);
 
-
-
-
-
-  
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) setUser(data.session.user);
