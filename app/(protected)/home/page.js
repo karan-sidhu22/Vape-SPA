@@ -424,7 +424,7 @@ export default function Home() {
         </section>
 
         {/* — BrandPromise (full width) */}
-        <section className="w-full py-16 bg-gray-900">
+        <section className="w-full py-0 bg-gray-900">
           <BrandPromise />
         </section>
 
