@@ -3,10 +3,13 @@ import Link from "next/link";
 
 export default function SiteFooter() {
   return (
-    <footer className="bg-white/10 backdrop-blur-md text-white/60 text-center py-6 border-t border-white/10">
+    <footer
+      className="text-white/60 text-center py-6 border-t border-white/10"
+      style={{ backgroundColor: "#121827" }}
+    >
       <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 px-6">
         <div>
-          <h4 className="font-semibold mb-2">Company</h4>
+          <h4 className="font-semibold mb-2 text-white">Company</h4>
           <ul className="space-y-1">
             <li>
               <Link href="/about">About Us</Link>
@@ -21,7 +24,7 @@ export default function SiteFooter() {
         </div>
 
         <div>
-          <h4 className="font-semibold mb-2">Support</h4>
+          <h4 className="font-semibold mb-2 text-white">Support</h4>
           <ul className="space-y-1">
             <li>
               <Link href="/help">Help Center</Link>
@@ -36,7 +39,7 @@ export default function SiteFooter() {
         </div>
 
         <div>
-          <h4 className="font-semibold mb-2">Legal</h4>
+          <h4 className="font-semibold mb-2 text-white">Legal</h4>
           <ul className="space-y-1">
             <li>
               <Link href="/terms">Terms &amp; Conditions</Link>
@@ -48,7 +51,7 @@ export default function SiteFooter() {
         </div>
 
         <div>
-          <h4 className="font-semibold mb-2">Follow Us</h4>
+          <h4 className="font-semibold mb-2 text-white">Follow Us</h4>
           <ul className="space-y-1">
             <li>
               <a
