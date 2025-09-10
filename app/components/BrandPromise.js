@@ -96,7 +96,10 @@ export default function BrandPromise() {
   ];
 
   return (
-    <section className="bg-gradient-to-br from-gray-900 via-gray-800 to-black py-20 px-4 sm:px-6 lg:px-8 border-t border-white/20">
+    <section
+      className="py-20 px-4 sm:px-6 lg:px-8 border-t border-white/20"
+      style={{ backgroundColor: "#121827" }}
+    >
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
           <h2 className="text-3xl sm:text-4xl font-extrabold text-yellow-400">
