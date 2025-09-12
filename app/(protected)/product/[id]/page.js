@@ -25,7 +25,6 @@ export default function ProductDetail() {
 
   useEffect(() => {
     (async () => {
-      // require logged-in user
       const {
         data: { user: sessionUser },
       } = await supabase.auth.getUser();
@@ -35,7 +34,6 @@ export default function ProductDetail() {
       }
       setUser(sessionUser);
 
-      // fetch product
       const { data, error } = await supabase
         .from("products")
         .select("*")
@@ -153,10 +151,10 @@ export default function ProductDetail() {
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white">
       <Header />
 
-      {/* Padding-top added to push content below header */}
-      <main className="flex flex-col-reverse pt-50 px-6 pb-10 gap-12 lg:flex-row lg:py-40 lg:px-20 lg:gap-20">
+      {/* Centered layout */}
+      <main className="flex flex-col lg:flex-row items-center justify-center px-4 py-24 lg:py-40 gap-16">
         {/* Product Details & Reviews */}
-        <div className="flex-1 space-y-8">
+        <div className="flex-1 space-y-8 max-w-2xl text-center lg:text-left">
           <h1 className="text-3xl sm:text-4xl font-bold text-yellow-300">
             {product.name}
           </h1>
@@ -167,7 +165,7 @@ export default function ProductDetail() {
             </p>
             <p className="text-white/80">{product.description}</p>
             {product.features && (
-              <ul className="list-disc pl-5 text-white/70 space-y-1">
+              <ul className="list-disc pl-5 text-white/70 space-y-1 inline-block text-left">
                 {(Array.isArray(product.features)
                   ? product.features
                   : product.features.split(",")
@@ -178,7 +176,7 @@ export default function ProductDetail() {
             )}
           </div>
 
-          <div className="flex flex-wrap gap-4">
+          <div className="flex flex-wrap gap-4 justify-center lg:justify-start">
             <button
               onClick={addToCart}
               disabled={addingToCart}
@@ -205,7 +203,7 @@ export default function ProductDetail() {
           </div>
 
           {/* Customer Reviews */}
-          <section className="space-y-6">
+          <section className="space-y-6 max-w-xl mx-auto lg:mx-0">
             <h2 className="text-2xl font-semibold text-yellow-300">
               Customer Reviews
             </h2>
@@ -218,15 +216,16 @@ export default function ProductDetail() {
         </div>
 
         {/* Product Image */}
-        <div className="w-full max-w-md mx-auto lg:mx-0 flex-shrink-0 bg-gray-800/60 p-6 rounded-xl shadow-lg">
-          <Image
-            src={product.image_url || "/placeholder.png"}
-            alt={product.name}
-            width={500}
-            height={500}
-            className="object-contain rounded mx-auto"
-            priority
-          />
+        <div className="w-full max-w-sm flex justify-center">
+          <div className="relative aspect-square bg-gray-800 rounded-xl flex items-center justify-center">
+            <Image
+              src={product.image_url}
+              alt={product.name}
+              width={400}
+              height={400}
+              className="object-contain rounded"
+            />
+          </div>
         </div>
       </main>
 
