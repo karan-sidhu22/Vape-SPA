@@ -152,7 +152,7 @@ export default function ProductDetail() {
       <Header />
 
       {/* Centered layout */}
-      <main className="flex flex-col lg:flex-row items-center justify-center px-4 py-24 lg:py-40 gap-16">
+      <main className="flex flex-col lg:flex-row items-start justify-center px-4 py-24 lg:py-40 gap-16">
         {/* Product Details & Reviews */}
         <div className="flex-1 space-y-8 max-w-2xl text-center lg:text-left">
           <h1 className="text-3xl sm:text-4xl font-bold text-yellow-300">
@@ -216,8 +216,8 @@ export default function ProductDetail() {
         </div>
 
         {/* Product Image */}
-        <div className="w-full max-w-sm flex justify-center">
-          <div className="relative aspect-square bg-gray-800 rounded-xl flex items-center justify-center">
+        <div className="w-full max-w-sm flex justify-center relative -top-0 -left-20">
+          <div className="relative aspect-square bg-#1E2634 rounded-xl flex items-center justify-center">
             <Image
               src={product.image_url}
               alt={product.name}
