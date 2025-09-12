@@ -25,7 +25,7 @@ export default function ProductDetail() {
 
   useEffect(() => {
     (async () => {
-      // require logged‑in user
+      // require logged-in user
       const {
         data: { user: sessionUser },
       } = await supabase.auth.getUser();
@@ -153,7 +153,8 @@ export default function ProductDetail() {
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white">
       <Header />
 
-      <main className="flex flex-col-reverse mt-15 px-4 py-10 gap-12 lg:flex-row lg:py-16 lg:px-16 lg:gap-16">
+      {/* Padding-top added to push content below header */}
+      <main className="flex flex-col-reverse pt-50 px-6 pb-10 gap-12 lg:flex-row lg:py-40 lg:px-20 lg:gap-20">
         {/* Product Details & Reviews */}
         <div className="flex-1 space-y-8">
           <h1 className="text-3xl sm:text-4xl font-bold text-yellow-300">
@@ -217,13 +218,14 @@ export default function ProductDetail() {
         </div>
 
         {/* Product Image */}
-        <div className="w-full max-w-md mx-auto lg:mx-0 flex-shrink-0 bg-gray-800 p-6 rounded-xl">
+        <div className="w-full max-w-md mx-auto lg:mx-0 flex-shrink-0 bg-gray-800/60 p-6 rounded-xl shadow-lg">
           <Image
-            src={product.image_url}
+            src={product.image_url || "/placeholder.png"}
             alt={product.name}
-            width={400}
-            height={400}
+            width={500}
+            height={500}
             className="object-contain rounded mx-auto"
+            priority
           />
         </div>
       </main>
