@@ -274,7 +274,8 @@ export default function Landing() {
       {/* About */}
       <section
         id="about"
-        className="px-6 py-5 text-center bg-white/10 backdrop-blur-md"
+        className="px-6 py-5 text-center"
+        style={{ backgroundColor: "#131826" }}
       >
         <h3 className="text-4xl font-semibold mb-6 text-yellow-300">
           About Vape Vault
@@ -285,6 +286,7 @@ export default function Landing() {
           lifestyle.
         </p>
       </section>
+
 
       {/* Contact */}
 
