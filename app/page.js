@@ -6,7 +6,6 @@ import Link from "next/link";
 import Head from "next/head";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
-import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import BrandPromise from "app/components/BrandPromise";
 import SiteFooter from "./components/SiteFooter";
 
@@ -86,7 +85,10 @@ export default function Landing() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white font-sans flex flex-col scroll-smooth">
+    <div
+      className="min-h-screen text-white font-sans flex flex-col scroll-smooth"
+      style={{ backgroundColor: "#131826" }}
+    >
       <Head>
         <title>Vape Vault – Premium Vape Devices</title>
         <meta
@@ -101,7 +103,7 @@ export default function Landing() {
       {/* Header */}
       <header className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 bg-white/10 backdrop-blur-lg border border-white/20 px-8 py-4 shadow-2xl rounded-2xl w-[92%] max-w-6xl">
         <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-          {/* Logo + Search */}
+          {/* Logo */}
           <div className="flex items-center space-x-4 w-full md:w-auto">
             <Link
               href="/"
@@ -116,29 +118,6 @@ export default function Landing() {
               />
               <h1 className="text-3xl font-bold text-yellow-300">Vape Vault</h1>
             </Link>
-            {/* <div className="relative w-full max-w-xs">
-              <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white/60" />
-              <input
-                type="text"
-                placeholder="Search products..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-full border border-white/30 bg-white/10 px-10 py-2 text-sm text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-yellow-400 backdrop-blur-sm"
-              />
-              {searchQuery && suggestions.length > 0 && (
-                <ul className="absolute top-full mt-2 w-full bg-white/10 backdrop-blur-md border border-white/20 rounded-lg shadow-lg max-h-60 overflow-y-auto z-50">
-                  {suggestions.slice(0, 5).map((prod) => (
-                    <li
-                      key={prod.id}
-                      onClick={() => router.push(`/product/${prod.id}`)}
-                      className="px-4 py-2 hover:bg-white/20 cursor-pointer text-white"
-                    >
-                      {prod.name}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div> */}
           </div>
 
           <nav className="space-x-6 text-lg flex items-center justify-center md:justify-end w-full md:w-auto">
@@ -202,10 +181,16 @@ export default function Landing() {
         </div>
       </main>
 
+      {/* Divider */}
+      <div className="border-t border-white/10 w-full" />
+
       {/* Brand Promise */}
       <section className="pt-0">
         <BrandPromise />
       </section>
+
+      {/* Divider */}
+      <div className="border-t border-white/10 w-full" />
 
       {/* Products */}
       <section id="products" className="px-6 py-16">
@@ -271,6 +256,9 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Divider */}
+      <div className="border-t border-white/10 w-full" />
+
       {/* About */}
       <section
         id="about"
@@ -287,9 +275,10 @@ export default function Landing() {
         </p>
       </section>
 
+      {/* Divider */}
+      <div className="border-t border-white/10 w-full" />
 
-      {/* Contact */}
-
+      {/* Contact / Footer */}
       <SiteFooter />
     </div>
   );
