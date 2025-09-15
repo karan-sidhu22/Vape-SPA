@@ -54,9 +54,6 @@ export default function Home() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // — role check for Admin link
-  const [userRole, setUserRole] = useState(null);
-
   // — data
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -82,15 +79,6 @@ export default function Home() {
         router.replace("/signin");
       } else {
         setUser(data.session.user);
-        // fetch user role
-        supabase
-          .from("users")
-          .select("role")
-          .eq("id", data.session.user.id)
-          .single()
-          .then(({ data: d }) => {
-            if (d?.role) setUserRole(d.role);
-          });
       }
     });
     const { data: sub } = supabase.auth.onAuthStateChange((_, sess) => {
@@ -98,14 +86,6 @@ export default function Home() {
         router.replace("/signin");
       } else {
         setUser(sess.user);
-        supabase
-          .from("users")
-          .select("role")
-          .eq("id", sess.user.id)
-          .single()
-          .then(({ data: d }) => {
-            if (d?.role) setUserRole(d.role);
-          });
       }
     });
     return () => sub?.subscription.unsubscribe();
@@ -384,12 +364,6 @@ export default function Home() {
             <Link href="/order-history" className="hover:text-yellow-400">
               Order History
             </Link>
-            {/* only show for admins */}
-            {userRole === "admin" && (
-              <Link href="/admin" className="hover:text-yellow-400 text-lg">
-                Admin Dashboard
-              </Link>
-            )}
             <button
               onClick={handleLogout}
               className="bg-yellow-300 hover:bg-yellow-400 text-black px-4 py-2 rounded-md font-medium"
@@ -428,7 +402,7 @@ export default function Home() {
           <BrandPromise />
         </section>
 
-        {/* — Shop by Category (full width, larger cards) */}
+        {/* — Shop by Category */}
         <section id="shop" className="py-16">
           <h2 className="text-3xl sm:text-4xl font-semibold text-center text-yellow-300 mb-10">
             Shop by Category
@@ -457,7 +431,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* — Our Collection (full width, larger cards) */}
+        {/* — Our Collection */}
         <section id="products" className="py-16">
           <h2 className="text-3xl sm:text-4xl font-semibold text-center text-yellow-300 mb-10">
             Our Collection
@@ -498,9 +472,8 @@ export default function Home() {
                               removeFromWishlist(p.id);
                             }}
                             disabled={processingId === p.id}
-                            className="p-1 rounded-full bg-white/20 hover:bg-white/30 transition"
                           >
-                            <HeartSolid className="h-5 w-5 text-yellow-300" />
+                            <HeartSolid className="h-6 w-6 text-red-500" />
                           </button>
                         ) : (
                           <button
@@ -509,31 +482,32 @@ export default function Home() {
                               addToWishlist(p.id);
                             }}
                             disabled={processingId === p.id}
-                            className="p-1 rounded-full bg-white/20 hover:bg-white/30 transition"
                           >
-                            <HeartOutline className="h-5 w-5 text-yellow-300" />
+                            <HeartOutline className="h-6 w-6 text-white hover:text-red-500" />
                           </button>
                         )}
                         {cartMap[p.id] ? (
-                          <div className="flex items-center space-x-1 bg-white/20 rounded-full px-2 py-1">
+                          <div className="flex items-center space-x-1">
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
                                 updateCartQty(p.id, -1);
                               }}
+                              className="bg-yellow-300 rounded-full p-1"
                             >
-                              <MinusIcon className="h-4 w-4 text-white" />
+                              <MinusIcon className="h-4 w-4 text-black" />
                             </button>
-                            <span className="px-2 text-white">
+                            <span className="text-white text-sm px-2">
                               {cartMap[p.id]}
                             </span>
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                updateCartQty(p.id, +1);
+                                updateCartQty(p.id, 1);
                               }}
+                              className="bg-yellow-300 rounded-full p-1"
                             >
-                              <PlusIcon className="h-4 w-4 text-white" />
+                              <PlusIcon className="h-4 w-4 text-black" />
                             </button>
                           </div>
                         ) : (
@@ -543,7 +517,7 @@ export default function Home() {
                               addToCart(p.id);
                             }}
                             disabled={processingId === p.id}
-                            className="bg-yellow-300 hover:bg-yellow-400 text-black px-3 py-1 rounded-full text-sm font-medium transition"
+                            className="bg-yellow-300 text-black px-3 py-1 rounded-full text-sm font-medium hover:bg-yellow-400"
                           >
                             Add to Cart
                           </button>
@@ -558,7 +532,6 @@ export default function Home() {
         </section>
       </main>
 
-      {/* — Footer */}
       <SiteFooter />
     </div>
   );
