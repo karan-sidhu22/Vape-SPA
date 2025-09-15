@@ -203,7 +203,7 @@ export default function Landing() {
       </main>
 
       {/* Brand Promise */}
-      <section className="pt-8">
+      <section className="pt-0">
         <BrandPromise />
       </section>
 
