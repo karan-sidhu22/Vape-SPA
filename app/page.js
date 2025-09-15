@@ -275,9 +275,6 @@ export default function Landing() {
         </p>
       </section>
 
-      {/* Divider */}
-      <div className="border-t border-white/10 w-full" />
-
       {/* Contact / Footer */}
       <SiteFooter />
     </div>
