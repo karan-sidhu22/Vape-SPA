@@ -74,7 +74,6 @@ export default function SignupPage() {
       });
       if (signUpError) throw signUpError;
 
-      // Redirect to sign-in, passing name/email so we can upsert after login
       const params = new URLSearchParams({
         name: formData.name,
         email: formData.email,
@@ -88,11 +87,17 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white flex flex-col">
-      <header className="flex justify-center items-center px-6 py-4 border-b border-white/10 bg-white/10 backdrop-blur-md">
+    <div
+      className="min-h-screen flex flex-col"
+      style={{ backgroundColor: "#131826" }}
+    >
+      <header
+        className="flex justify-center items-center px-6 py-4 border-b border-white/10"
+        style={{ backgroundColor: "#141825" }}
+      >
         <Link href="/" className="flex items-center space-x-3">
-          <img src="/Logo.png" alt="Vape Vault Logo" className="w-20 h-20" />
-          <h1 className="text-3xl font-bold text-yellow-300">Vape Vault</h1>
+          <img src="/Logo.png" alt="Vape-SPA Logo" className="w-20 h-20" />
+          <h1 className="text-3xl font-bold text-yellow-300">Vape-SPA</h1>
         </Link>
       </header>
 
@@ -103,14 +108,14 @@ export default function SignupPage() {
           </h2>
 
           {error && (
-            <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+            <div className="mb-4 p-3 bg-red-500/20 border border-red-400 text-red-300 rounded">
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4 text-white">
             <div>
-              <label htmlFor="name" className="block text-white mb-1">
+              <label htmlFor="name" className="block mb-1">
                 Full Name <span className="text-red-500">*</span>
               </label>
               <input
@@ -118,13 +123,13 @@ export default function SignupPage() {
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                className="w-full px-4 py-2 bg-white/20 border border-white/30 text-white placeholder-white/70 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
-                placeholder="John Doe"
+                className="w-full px-4 py-2 bg-white/10 border border-white/20 text-white placeholder-white/60 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                placeholder="Harkaran Singh"
               />
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-white mb-1">
+              <label htmlFor="email" className="block mb-1">
                 Email Address <span className="text-red-500">*</span>
               </label>
               <input
@@ -133,13 +138,13 @@ export default function SignupPage() {
                 type="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full px-4 py-2 bg-white/20 border border-white/30 text-white placeholder-white/70 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                className="w-full px-4 py-2 bg-white/10 border border-white/20 text-white placeholder-white/60 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
                 placeholder="you@example.com"
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-white mb-1">
+              <label htmlFor="password" className="block mb-1">
                 Password <span className="text-red-500">*</span>
               </label>
               <input
@@ -148,7 +153,7 @@ export default function SignupPage() {
                 type="password"
                 value={formData.password}
                 onChange={handleChange}
-                className="w-full px-4 py-2 bg-white/20 border border-white/30 text-white placeholder-white/70 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                className="w-full px-4 py-2 bg-white/10 border border-white/20 text-white placeholder-white/60 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
                 placeholder="At least 8 characters"
               />
               <div className="mt-1 flex gap-1">
@@ -159,22 +164,19 @@ export default function SignupPage() {
                       passwordStrength >= i
                         ? i >= 3
                           ? "bg-green-500"
-                          : "bg-yellow-500"
-                        : "bg-gray-200"
+                          : "bg-yellow-400"
+                        : "bg-gray-700"
                     }`}
                   />
                 ))}
               </div>
-              <p className="text-xs text-gray-300 mt-1">
+              <p className="text-xs text-gray-400 mt-1">
                 Include uppercase, numbers, and symbols for stronger security
               </p>
             </div>
 
             <div>
-              <label
-                htmlFor="confirmPassword"
-                className="block text-white mb-1"
-              >
+              <label htmlFor="confirmPassword" className="block mb-1">
                 Confirm Password <span className="text-red-500">*</span>
               </label>
               <input
@@ -183,7 +185,7 @@ export default function SignupPage() {
                 type="password"
                 value={formData.confirmPassword}
                 onChange={handleChange}
-                className="w-full px-4 py-2 bg-white/20 border border-white/30 text-white placeholder-white/70 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                className="w-full px-4 py-2 bg-white/10 border border-white/20 text-white placeholder-white/60 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
                 placeholder="Re-enter your password"
               />
             </div>
@@ -201,11 +203,11 @@ export default function SignupPage() {
             </button>
           </form>
 
-          <div className="mt-6 text-center text-sm text-white/80">
+          <div className="mt-6 text-center text-sm text-white/70">
             Already have an account?{" "}
             <Link
               href="/signin"
-              className="text-yellow-400 hover:underline font-medium"
+              className="text-yellow-300 hover:underline font-medium"
             >
               Sign In
             </Link>
@@ -213,8 +215,11 @@ export default function SignupPage() {
         </div>
       </main>
 
-      <footer className="bg-white/10 backdrop-blur-md text-white/60 text-center p-6 text-sm border-t border-white/10">
-        &copy; {new Date().getFullYear()} Vape Vault. All rights reserved.
+      <footer
+        className="text-white/60 text-center p-6 text-sm border-t border-white/10"
+        style={{ backgroundColor: "#141825" }}
+      >
+        &copy; {new Date().getFullYear()} Vape-SPA. All rights reserved.
       </footer>
     </div>
   );

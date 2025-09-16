@@ -7,12 +7,17 @@ import Link from "next/link";
 
 export default function SigninPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white flex flex-col">
-      {/* Header */}
-      <header className="flex justify-center items-center px-6 py-4 border-b border-white/10 bg-white/10 backdrop-blur-md">
+    <div
+      className="min-h-screen text-white flex flex-col"
+      style={{ backgroundColor: "#141825" }}
+    >
+      <header
+        className="flex justify-center items-center px-6 py-4 border-b border-white/10"
+        style={{ backgroundColor: "#141825" }}
+      >
         <Link href="/" className="flex items-center space-x-3">
-          <img src="/Logo.png" alt="Vape Vault Logo" className="w-20 h-20" />
-          <h1 className="text-3xl font-bold text-yellow-300">Vape Vault</h1>
+          <img src="/Logo.png" alt="Vape-SPA Logo" className="w-20 h-20" />
+          <h1 className="text-3xl font-bold text-yellow-300">Vape-SPA</h1>
         </Link>
       </header>
 
@@ -23,9 +28,11 @@ export default function SigninPage() {
         </Suspense>
       </main>
 
-      {/* Footer */}
-      <footer className="bg-white/10 backdrop-blur-md text-white/60 text-center p-6 text-sm border-t border-white/10">
-        &copy; {new Date().getFullYear()} Vape Vault. All rights reserved.
+      <footer
+        className="text-white/60 text-center p-6 text-sm border-t border-white/10"
+        style={{ backgroundColor: "#141825" }}
+      >
+        &copy; {new Date().getFullYear()} Vape-SPA. All rights reserved.
       </footer>
     </div>
   );
