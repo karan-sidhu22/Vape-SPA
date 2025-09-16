@@ -155,7 +155,10 @@ export default function CartPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-black text-white">
+      <div
+        className="min-h-screen flex items-center justify-center text-white"
+        style={{ backgroundColor: "#141825" }}
+      >
         <LoadingSpinner />
       </div>
     );
@@ -164,14 +167,17 @@ export default function CartPage() {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white relative">
+    <div
+      className="min-h-screen flex flex-col text-white"
+      style={{ backgroundColor: "#141825" }}
+    >
       <Header />
 
       <h1 className="text-3xl mt-40 font-bold text-yellow-300 text-center">
         Your Cart
       </h1>
 
-      <main className="flex-1 container mx-30 px-6 py-10 pt-10">
+      <main className="flex-1 container mx-auto px-6 py-10">
         {error && (
           <div className="bg-red-100/10 border-l-4 border-red-400 text-red-300 p-4 mb-6 rounded-lg">
             {error}
@@ -183,7 +189,8 @@ export default function CartPage() {
             <EmptyCart />
           </div>
         ) : (
-          <div className="flex flex-col md:flex-row gap-8 mr-40">
+          <div className="flex flex-col lg:flex-row gap-8">
+            {/* Cart items */}
             <div className="flex-1 space-y-6">
               {cartItems.map((item) => (
                 <div
@@ -248,12 +255,13 @@ export default function CartPage() {
               ))}
             </div>
 
-            <div className="md:w-96 w-full md:fixed md:bottom-18 md:right-6 z-60">
-              <div className="bg-white/10 backdrop-blur-lg border border-white/20 p-6 rounded-lg shadow-md">
-                <h2 className="text-xl font-semibold mb-4 text-yellow-300">
+            {/* Order summary */}
+            <div className="lg:w-96 w-full">
+              <div className="bg-white/10 backdrop-blur-lg border border-white/20 p-6 rounded-lg shadow-md sticky top-28">
+                <h2 className="text-2xl font-bold mb-4 text-yellow-300">
                   Order Summary
                 </h2>
-                <div className="space-y-2 text-white/90">
+                <div className="space-y-3 text-white/90">
                   <div className="flex justify-between">
                     <span>Subtotal</span>
                     <span>${calculateTotal().toFixed(2)}</span>
@@ -263,7 +271,7 @@ export default function CartPage() {
                     <span className="text-green-400">Free</span>
                   </div>
                   <hr className="border-white/20 my-2" />
-                  <div className="flex justify-between font-semibold text-yellow-400 text-lg">
+                  <div className="flex justify-between font-bold text-lg text-yellow-300">
                     <span>Total</span>
                     <span>${calculateTotal().toFixed(2)}</span>
                   </div>
@@ -271,10 +279,10 @@ export default function CartPage() {
                 <button
                   onClick={handleCheckout}
                   disabled={checkoutLoading || cartItems.length === 0}
-                  className={`w-full mt-6 py-3 rounded-lg font-medium text-white transition ${
+                  className={`w-full mt-6 py-3 rounded-lg font-medium text-black transition ${
                     checkoutLoading
-                      ? "bg-blue-400 cursor-not-allowed"
-                      : "bg-blue-600 hover:bg-blue-700"
+                      ? "bg-yellow-200 cursor-not-allowed"
+                      : "bg-yellow-300 hover:bg-yellow-400"
                   }`}
                 >
                   {checkoutLoading ? "Processing..." : "Proceed to Checkout"}
