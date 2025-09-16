@@ -12,12 +12,12 @@ import SiteFooter from "@/app/components/SiteFooter";
 function EmptyWishlist() {
   const router = useRouter();
   return (
-    <div className="text-center py-16 px-6 w-110 bg-white/5 backdrop-blur-lg border border-white/20 rounded-xl shadow-lg text-white max-w-xl mx-auto">
+    <div className="text-center py-16 px-6 bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl shadow-lg text-white max-w-xl mx-auto">
       <HeartIcon className="h-12 w-12 text-yellow-400 mx-auto mb-4" />
       <p className="text-white text-lg mb-4">Your wishlist is empty.</p>
       <button
         onClick={() => router.push("/")}
-        className="inline-block bg-yellow-500 text-black px-6 py-2 rounded-md font-medium hover:bg-yellow-600 transition"
+        className="inline-block bg-yellow-400 text-black px-6 py-2 rounded-md font-medium hover:bg-yellow-500 transition"
       >
         Browse Products
       </button>
@@ -46,6 +46,7 @@ export default function WishlistPage() {
         .select("id")
         .eq("user_id", auth.user.id)
         .single();
+
       if (wlErr || !wl) {
         setItems([]);
         setLoading(false);
@@ -90,7 +91,10 @@ export default function WishlistPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-black text-white">
+      <div
+        className="min-h-screen flex items-center justify-center text-white"
+        style={{ backgroundColor: "#141825" }}
+      >
         <LoadingSpinner />
       </div>
     );
@@ -98,7 +102,10 @@ export default function WishlistPage() {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white">
+    <div
+      className="min-h-screen flex flex-col text-white"
+      style={{ backgroundColor: "#141825" }}
+    >
       <Header />
 
       <h1 className="text-3xl mt-40 font-bold text-yellow-300 text-center">
@@ -123,7 +130,7 @@ export default function WishlistPage() {
                 key={id}
                 className="flex flex-col md:flex-row bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl shadow-md hover:shadow-lg transition overflow-hidden"
               >
-                <div className="relative w-full md:w-1/4 h-48 bg-gray-900">
+                <div className="relative w-full md:w-1/4 h-48 bg-black/40">
                   <Image
                     src={products.image_url || "/placeholder-product.png"}
                     alt={products.name}
