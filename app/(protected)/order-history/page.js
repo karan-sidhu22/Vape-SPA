@@ -4,11 +4,9 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
-import { useRouter } from "next/navigation";
 import Header from "@/app/components/Header";
 
 export default function OrderHistoryPage() {
-  const router = useRouter();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -18,7 +16,6 @@ export default function OrderHistoryPage() {
       setLoading(true);
       setError(null);
 
-      // 1️⃣ Get the current user
       const {
         data: { user },
         error: userErr,
@@ -31,7 +28,6 @@ export default function OrderHistoryPage() {
         return;
       }
 
-      // 2️⃣ Fetch this user's orders + items + product names
       const { data, error: fetchErr } = await supabase
         .from("orders")
         .select(
@@ -63,67 +59,107 @@ export default function OrderHistoryPage() {
     })();
   }, []);
 
-  if (loading) return <p className="p-8">Loading your order history…</p>;
-  if (error) return <p className="p-8 text-red-400">Error: {error}</p>;
+  if (loading)
+    return (
+      <div
+        className="min-h-screen flex items-center justify-center text-white text-lg"
+        style={{ backgroundColor: "#141825" }}
+      >
+        Loading your order history…
+      </div>
+    );
+
+  if (error)
+    return (
+      <div
+        className="min-h-screen flex items-center justify-center text-red-400 text-lg"
+        style={{ backgroundColor: "#141825" }}
+      >
+        Error: {error}
+      </div>
+    );
 
   return (
-    <div className="p-8 space-y-6">
+    <div
+      className="min-h-screen flex flex-col text-white"
+      style={{
+        background: "linear-gradient(160deg, #141825 0%, #0f1320 100%)",
+      }}
+    >
+      {/* Header */}
       <Header title="Your Order History" />
-      {/* Back button */}
-      <button
-        onClick={() => router.back()}
-        className="px-4 py-2 bg-yellow-300 text-black rounded hover:bg-yellow-600"
-      >
-        &larr; Back
-      </button>
 
-      <h1 className="text-3xl mt-5 font-bold">Your Order History</h1>
+      {/* Content */}
+      <main className="flex-1 pt-45 px-6 pb-20 max-w-7xl mx-auto w-full">
+        <h1 className="text-4xl font-extrabold text-yellow-300 mb-10 tracking-wide drop-shadow-md">
+          Your Order History
+        </h1>
 
-      {orders.length === 0 ? (
-        <p>No orders found.</p>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {orders.map((o) => (
-            <div
-              key={o.id}
-              className="bg-white/10 p-6 rounded-lg flex flex-col justify-between hover:shadow-lg transition-shadow"
-            >
-              <div>
-                <h2 className="text-lg font-semibold mb-2">
-                  Order #{o.id.slice(0, 8)}
-                </h2>
-                <p className="text-sm text-gray-400 mb-1">
-                  {new Date(o.order_date).toLocaleDateString()}{" "}
-                  {new Date(o.order_date).toLocaleTimeString()}
-                </p>
-                <span className="inline-block text-xs uppercase px-2 py-1 rounded-full bg-gray-700 text-white mb-4">
-                  {o.status}
-                </span>
+        {orders.length === 0 ? (
+          <p className="text-gray-400">No orders found.</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {orders.map((o) => (
+              <div
+                key={o.id}
+                className="relative bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl p-6 flex flex-col justify-between transition-transform transform hover:-translate-y-2 hover:shadow-2xl"
+              >
+                {/* Glow overlay */}
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-yellow-400/10 via-transparent to-transparent pointer-events-none"></div>
 
-                <div className="space-y-1 mb-4">
-                  {o.order_items.map((item) => (
-                    <div key={item.id} className="text-sm">
-                      {item.quantity}× {item.products.name}
-                    </div>
-                  ))}
+                <div className="relative">
+                  <h2 className="text-xl font-bold text-yellow-300 mb-2">
+                    Order #{o.id.slice(0, 8)}
+                  </h2>
+                  <p className="text-sm text-gray-400 mb-1">
+                    {new Date(o.order_date).toLocaleDateString()} •{" "}
+                    {new Date(o.order_date).toLocaleTimeString()}
+                  </p>
+                  <span className="inline-block text-xs uppercase px-2 py-1 rounded-full bg-yellow-400/20 text-yellow-300 mb-4">
+                    {o.status}
+                  </span>
+
+                  <div className="space-y-2 mb-6">
+                    {o.order_items.map((item) => (
+                      <div
+                        key={item.id}
+                        className="flex justify-between text-sm text-white/80"
+                      >
+                        <span>
+                          {item.quantity}× {item.products.name}
+                        </span>
+                        <span className="text-gray-300">
+                          ${item.price_at_purchase.toFixed(2)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="relative mt-auto">
+                  <p className="text-lg font-bold mb-4 text-white">
+                    Total: ${o.total_amount.toFixed(2)}
+                  </p>
+                  <Link
+                    href={`/orders/${o.id}`}
+                    className="inline-block px-4 py-2 bg-yellow-300 text-black font-medium rounded-lg hover:bg-yellow-400 transition shadow-md hover:shadow-lg"
+                  >
+                    View Details
+                  </Link>
                 </div>
               </div>
+            ))}
+          </div>
+        )}
+      </main>
 
-              <div className="mt-auto">
-                <p className="text-lg font-bold mb-2">
-                  Total: ${o.total_amount.toFixed(2)}
-                </p>
-                <Link
-                  href={`/orders/${o.id}`}
-                  className="inline-block px-4 py-2 bg-yellow-300 text-black rounded hover:bg-yellow-400"
-                >
-                  View Details
-                </Link>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+      {/* Footer */}
+      <footer
+        className="text-white/60 text-center p-6 text-sm border-t border-white/10"
+        style={{ backgroundColor: "#141825" }}
+      >
+        &copy; {new Date().getFullYear()} Vape-SPA. All rights reserved.
+      </footer>
     </div>
   );
 }
