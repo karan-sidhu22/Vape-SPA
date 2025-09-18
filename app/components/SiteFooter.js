@@ -4,7 +4,7 @@ import { Github, Instagram, MessageCircle } from "lucide-react"; // WhatsApp sty
 
 export default function SiteFooter() {
   return (
-    <footer className="bg-[#121827] text-white/70 border-t border-white/10">
+    <footer className="text-white/70 border-t border-white/10" style={{ backgroundColor: "#131826" }}>
       {/* Top section */}
       <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 px-6 py-12">
         <div>

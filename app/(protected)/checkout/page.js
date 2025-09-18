@@ -22,7 +22,7 @@ export default function CheckoutPage() {
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [error, setError] = useState(null);
 
-  // 1️⃣ Load user, profile, cart & items
+  // Load user, profile, cart & items
   useEffect(() => {
     (async () => {
       const { data: authData, error: authErr } = await supabase.auth.getUser();
@@ -33,24 +33,24 @@ export default function CheckoutPage() {
       const u = authData.user;
       setUser(u);
 
-      // profile
       const { data: prof } = await supabase
         .from("users")
         .select("full_name, email, address")
         .eq("id", u.id)
         .single();
+
       setProfile({
         full_name: prof?.full_name || u.user_metadata?.full_name || "",
         email: prof?.email || u.email,
         address: prof?.address || "",
       });
 
-      // cart
       const { data: cart } = await supabase
         .from("carts")
         .select("id")
         .eq("user_id", u.id)
         .single();
+
       if (!cart?.id) {
         setError("No cart found.");
         setLoading(false);
@@ -58,7 +58,6 @@ export default function CheckoutPage() {
       }
       setCartId(cart.id);
 
-      // cart items
       const { data: items } = await supabase
         .from("cart_items")
         .select(
@@ -71,6 +70,7 @@ export default function CheckoutPage() {
         `
         )
         .eq("cart_id", cart.id);
+
       setCartItems(items || []);
       setLoading(false);
     })();
@@ -82,13 +82,11 @@ export default function CheckoutPage() {
       0
     );
 
-  // 2️⃣ Place order: insert into orders, order_items, decrement stock, clear cart
+  // Place order
   const handlePlaceOrder = async () => {
     setPlacing(true);
     setError(null);
-
     try {
-      // 1) Insert the order
       const { data: order, error: ordErr } = await supabase
         .from("orders")
         .insert({
@@ -102,7 +100,6 @@ export default function CheckoutPage() {
         .single();
       if (ordErr) throw ordErr;
 
-      // 2) Insert order_items
       const orderItemsPayload = cartItems.map((it) => ({
         order_id: order.id,
         product_id: it.products.id,
@@ -114,127 +111,146 @@ export default function CheckoutPage() {
         .insert(orderItemsPayload);
       if (oiErr) throw oiErr;
 
-      // 3) Decrement stock — now with error checking
       for (const it of cartItems) {
         const newStock = it.products.stock_quantity - it.quantity;
-
-        const { data: updated, error: updErr } = await supabase
+        const { error: updErr } = await supabase
           .from("products")
           .update({ stock_quantity: newStock })
-          .eq("id", it.products.id)
-          .select("stock_quantity")
-          .single();
-
-        if (updErr) {
-          console.error(
-            `Failed to update stock for product ${it.products.id}:`,
-            updErr
-          );
-          throw new Error(`Could not update stock for ${it.products.name}`);
-        } else {
-          console.log(
-            `Product ${it.products.id} stock updated from ${it.products.stock_quantity} to ${updated.stock_quantity}`
-          );
-        }
+          .eq("id", it.products.id);
+        if (updErr) throw updErr;
       }
 
-      // 4) Clear the cart
-      const { error: delErr } = await supabase
-        .from("cart_items")
-        .delete()
-        .eq("cart_id", cartId);
-      if (delErr) throw delErr;
-
-      // 5) Success!
+      await supabase.from("cart_items").delete().eq("cart_id", cartId);
       setOrderPlaced(true);
     } catch (err) {
-      console.error("Order placement error:", err);
       setError(err.message || "Failed to place order");
       setPlacing(false);
     }
   };
 
-  if (loading)
+  if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-black text-white">
+      <div className="min-h-screen flex items-center justify-center bg-[#131826] text-white">
         Loading…
       </div>
     );
+  }
 
   if (orderPlaced) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 to-black text-white">
+      <div className="min-h-screen flex flex-col bg-[#131826] text-white">
         <Header />
-        <h1 className="text-4xl text-yellow-300 mb-4">Thank you!</h1>
-        <p>Your order has been placed successfully.</p>
-        <button
-          onClick={() => router.push("/")}
-          className="mt-6 bg-yellow-300 hover:bg-yellow-400 text-black px-6 py-2 rounded"
-        >
-          Return Home
-        </button>
+        <main className="flex-1 flex flex-col items-center justify-center px-6 py-24">
+          <h1 className="text-4xl font-extrabold text-yellow-300 mb-4">
+            🎉 Thank you!
+          </h1>
+          <p className="text-lg text-white/80">
+            Your order has been placed successfully.
+          </p>
+          <button
+            onClick={() => router.push("/")}
+            className="mt-8 bg-yellow-400 hover:bg-yellow-500 text-black px-8 py-3 rounded-lg font-semibold shadow-lg transition"
+          >
+            Return Home
+          </button>
+        </main>
         <SiteFooter />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-900 to-black text-white">
+    <div className="min-h-screen flex flex-col bg-[#131826] text-white">
       <Header />
 
-      <main className="flex-1 container mx-auto px-6 py-16">
-        <h1 className="text-3xl font-bold text-yellow-300 mb-6">
-          Order Summary
+      <main className="flex-1 container mx-auto px-6 pt-32 pb-20">
+        <h1 className="text-3xl font-extrabold text-yellow-300 mb-12 text-center">
+          Secure Checkout
         </h1>
 
-        {error && <div className="mb-6 text-red-400">{error}</div>}
-
-        {/* Delivery Details */}
-        <div className="bg-white/10 border border-white/20 rounded-lg p-6 mb-8">
-          <h2 className="text-xl font-semibold mb-2">Delivery Details</h2>
-          <p>
-            <strong>Name:</strong> {profile.full_name}
-          </p>
-          <p>
-            <strong>Email:</strong> {profile.email}
-          </p>
-          <p>
-            <strong>Address:</strong> {profile.address}
-          </p>
-        </div>
-
-        {/* Items */}
-        <div className="bg-white/10 border border-white/20 rounded-lg p-6 mb-8">
-          <h2 className="text-xl font-semibold mb-4">Items</h2>
-          <ul className="space-y-4">
-            {cartItems.map((it) => (
-              <li key={it.id} className="flex justify-between">
-                <div>
-                  {it.products.name} x {it.quantity}
-                </div>
-                <div>${(it.quantity * it.products.price).toFixed(2)}</div>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Total & Place Order */}
-        <div className="bg-white/10 border border-white/20 rounded-lg p-6">
-          <div className="flex justify-between text-lg font-semibold mb-4">
-            <span>Total:</span>
-            <span>${calculateTotal().toFixed(2)}</span>
+        {error && (
+          <div className="bg-red-500/10 border border-red-500 text-red-400 p-4 rounded-lg mb-6">
+            {error}
           </div>
-          <button
-            onClick={handlePlaceOrder}
-            disabled={placing}
-            className={`w-full py-3 rounded-lg font-medium text-white transition ${
-              placing
-                ? "bg-gray-500 cursor-not-allowed"
-                : "bg-green-600 hover:bg-green-700"
-            }`}
-          >
-            {placing ? "Placing order…" : "Place Order"}
-          </button>
+        )}
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+          {/* Left: Details & Items */}
+          <div className="lg:col-span-2 space-y-8">
+            <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-8 shadow-xl">
+              <h2 className="text-xl font-semibold mb-4 text-yellow-300">
+                Delivery Details
+              </h2>
+              <ul className="space-y-2 text-white/90">
+                <li>
+                  <span className="font-medium">Name:</span> {profile.full_name}
+                </li>
+                <li>
+                  <span className="font-medium">Email:</span> {profile.email}
+                </li>
+                <li>
+                  <span className="font-medium">Address:</span>{" "}
+                  {profile.address}
+                </li>
+              </ul>
+            </div>
+
+            <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-8 shadow-xl">
+              <h2 className="text-xl font-semibold mb-6 text-yellow-300">
+                Items in Your Order
+              </h2>
+              <ul className="divide-y divide-white/10">
+                {cartItems.map((it) => (
+                  <li
+                    key={it.id}
+                    className="flex justify-between items-center py-4"
+                  >
+                    <span>
+                      {it.products.name}{" "}
+                      <span className="text-white/60">× {it.quantity}</span>
+                    </span>
+                    <span className="text-yellow-400 font-medium">
+                      ${(it.quantity * it.products.price).toFixed(2)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          {/* Right: Summary */}
+          <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-8 shadow-xl h-fit">
+            <h2 className="text-xl font-semibold mb-6 text-yellow-300">
+              Order Summary
+            </h2>
+            <div className="space-y-4 text-white/90">
+              <div className="flex justify-between">
+                <span>Subtotal</span>
+                <span>${calculateTotal().toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Shipping</span>
+                <span className="text-green-400">Free</span>
+              </div>
+              <hr className="border-white/20" />
+              <div className="flex justify-between text-lg font-bold text-yellow-300">
+                <span>Total</span>
+                <span>${calculateTotal().toFixed(2)}</span>
+              </div>
+            </div>
+
+            <button
+              onClick={handlePlaceOrder}
+              disabled={placing}
+              className={`w-full mt-8 py-3 rounded-lg font-semibold transition ${
+                placing
+                  ? "bg-gray-500 cursor-not-allowed"
+                  : "bg-green-600 hover:bg-green-700"
+              }`}
+            >
+              {placing ? "Placing Order…" : "Confirm & Place Order"}
+            </button>
+          </div>
         </div>
       </main>
 

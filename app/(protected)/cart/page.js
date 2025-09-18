@@ -169,7 +169,7 @@ export default function CartPage() {
   return (
     <div
       className="min-h-screen flex flex-col text-white"
-      style={{ backgroundColor: "#141825" }}
+      style={{ backgroundColor: "#131826" }}
     >
       <Header />
 
