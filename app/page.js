@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import BrandPromise from "app/components/BrandPromise";
 import SiteFooter from "./components/SiteFooter";
+import { motion } from "framer-motion"; // ✅ Added Framer Motion
 
 const products = [
   {
@@ -42,12 +43,6 @@ export default function Landing() {
   const [loading, setLoading] = useState(true);
   const [ageVerified, setAgeVerified] = useState(false);
 
-  // search state + suggestions
-  const [searchQuery, setSearchQuery] = useState("");
-  const suggestions = products.filter((p) =>
-    p.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) {
@@ -58,7 +53,6 @@ export default function Landing() {
     });
   }, [router]);
 
-  // always prompt on full reload
   const handleAgeConfirm = () => {
     setAgeVerified(true);
   };
@@ -70,16 +64,23 @@ export default function Landing() {
   if (!ageVerified) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-black bg-opacity-90 text-white">
-        <div className="text-center space-y-4 p-6 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg shadow-lg">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6 }}
+          className="text-center space-y-4 p-6 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg shadow-lg"
+        >
           <h2 className="text-3xl font-bold">Are you 19 or older?</h2>
           <p>You must be of legal age to view this site.</p>
-          <button
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             onClick={handleAgeConfirm}
             className="bg-yellow-400 text-black px-6 py-2 rounded hover:bg-yellow-500 transition"
           >
             Yes, I am
-          </button>
-        </div>
+          </motion.button>
+        </motion.div>
       </div>
     );
   }
@@ -95,99 +96,73 @@ export default function Landing() {
           name="description"
           content="Discover premium vape products at Vape Vault – stylish, powerful, and built for your lifestyle."
         />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="canonical" href="https://yourdomain.com/" />
-        <meta name="robots" content="index, follow" />
       </Head>
 
       {/* Header */}
-      <header className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 bg-white/10 backdrop-blur-lg border border-white/20 px-8 py-4 shadow-2xl rounded-2xl w-[92%] max-w-6xl">
+      <motion.header
+        initial={{ y: -80, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.6 }}
+        className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 bg-white/10 backdrop-blur-lg border border-white/20 px-8 py-4 shadow-2xl rounded-2xl w-[92%] max-w-6xl"
+      >
         <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-          {/* Logo */}
           <div className="flex items-center space-x-4 w-full md:w-auto">
-            <Link
-              href="/"
-              className="flex items-center space-x-3"
-              aria-label="Home"
-            >
-              <Image
-                src="/Logo.png"
-                alt="Vape Vault Logo"
-                width={60}
-                height={60}
-              />
+            <Link href="/" className="flex items-center space-x-3">
+              <Image src="/Logo.png" alt="Vape Vault Logo" width={60} height={60} />
               <h1 className="text-3xl font-bold text-yellow-300">Vape Vault</h1>
             </Link>
           </div>
 
           <nav className="space-x-6 text-lg flex items-center justify-center md:justify-end w-full md:w-auto">
-            <Link
-              href="/signin"
-              className="text-yellow-400 hover:text-yellow-300 transition"
-            >
-              Sign In
-            </Link>
-            <Link
-              href="/signup"
-              className="text-yellow-400 hover:text-yellow-300 transition"
-            >
-              Sign Up
-            </Link>
-            <Link
-              href="#products"
-              className="text-white hover:text-gray-300 transition"
-            >
-              Products
-            </Link>
-            <Link
-              href="#about"
-              className="text-white hover:text-gray-300 transition"
-            >
-              About
-            </Link>
-            <Link
-              href="#contact"
-              className="text-white hover:text-gray-300 transition"
-            >
-              Contact
-            </Link>
+            <Link href="/signin" className="text-yellow-400 hover:text-yellow-300">Sign In</Link>
+            <Link href="/signup" className="text-yellow-400 hover:text-yellow-300">Sign Up</Link>
+            <Link href="#products" className="text-white hover:text-gray-300">Products</Link>
+            <Link href="#about" className="text-white hover:text-gray-300">About</Link>
+            <Link href="#contact" className="text-white hover:text-gray-300">Contact</Link>
           </nav>
         </div>
-      </header>
+      </motion.header>
 
       {/* Hero */}
       <main className="relative pt-52 px-6 pb-20 text-center flex-1 overflow-hidden">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url('/vape_back.png')` }}
-        />
+        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url('/vape_back.png')` }} />
         <div className="absolute inset-0 bg-black/50" />
-        <div className="relative z-10 mx-auto max-w-4xl p-8 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 shadow-lg">
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="relative z-10 mx-auto max-w-4xl p-8 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 shadow-lg"
+        >
           <h2 className="text-5xl font-bold mb-6 text-white drop-shadow-lg">
             Discover Your Next Favorite Vape
           </h2>
           <p className="text-xl text-white max-w-2xl mx-auto mb-8">
-            Premium vape products, stylish designs, and smooth flavors – all in
-            one place.
+            Premium vape products, stylish designs, and smooth flavors – all in one place.
           </p>
-          <Link href="#products">
-            <button
-              className="bg-yellow-300 hover:bg-yellow-400 px-6 py-3 rounded-full text-lg font-medium text-black transition"
-              aria-label="Browse Products"
-            >
-              Browse Products
-            </button>
-          </Link>
-        </div>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="bg-yellow-300 hover:bg-yellow-400 px-6 py-3 rounded-full text-lg font-medium text-black transition"
+          >
+            Browse Products
+          </motion.button>
+        </motion.div>
       </main>
 
       {/* Divider */}
       <div className="border-t border-white/10 w-full" />
 
       {/* Brand Promise */}
-      <section className="pt-0">
+      <motion.section
+        id="brand"
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        viewport={{ once: true }}
+        className="pt-0"
+      >
         <BrandPromise />
-      </section>
+      </motion.section>
 
       {/* Divider */}
       <div className="border-t border-white/10 w-full" />
@@ -195,16 +170,36 @@ export default function Landing() {
       {/* Products */}
       <section id="products" className="px-6 py-16">
         <div className="max-w-7xl mx-auto">
-          <h3 className="text-4xl font-semibold text-center mb-4 text-yellow-300">
+          <motion.h3
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-4xl font-semibold text-center mb-4 text-yellow-300"
+          >
             Our Collection
-          </h3>
+          </motion.h3>
           <p className="text-center text-gray-300 mb-12 max-w-2xl mx-auto">
             Carefully curated selection of premium vaping devices
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <motion.div
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true }}
+            variants={{
+              hidden: {},
+              show: { transition: { staggerChildren: 0.2 } },
+            }}
+          >
             {products.map((product) => (
-              <div
+              <motion.div
                 key={product.id}
+                variants={{
+                  hidden: { opacity: 0, y: 40 },
+                  show: { opacity: 1, y: 0 },
+                }}
+                transition={{ duration: 0.6 }}
                 className="bg-white/10 backdrop-blur-md border border-white/20 rounded-xl shadow-lg hover:shadow-2xl transition-all flex flex-col"
               >
                 <div className="relative h-64 bg-gray-100">
@@ -228,7 +223,6 @@ export default function Landing() {
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
-                          aria-hidden="true"
                         >
                           <path
                             strokeLinecap="round"
@@ -241,18 +235,17 @@ export default function Landing() {
                       </li>
                     ))}
                   </ul>
-                  <Link href={`/product/${product.id}`}>
-                    <button
-                      className="mt-auto w-full bg-yellow-300 hover:bg-yellow-400 text-black py-3 rounded-lg font-medium transition"
-                      aria-label={`View details about ${product.name}`}
-                    >
-                      View Details
-                    </button>
-                  </Link>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="mt-auto w-full bg-yellow-300 hover:bg-yellow-400 text-black py-3 rounded-lg font-medium transition"
+                  >
+                    View Details
+                  </motion.button>
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
@@ -260,10 +253,13 @@ export default function Landing() {
       <div className="border-t border-white/10 w-full" />
 
       {/* About */}
-      <section
+      <motion.section
         id="about"
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        viewport={{ once: true }}
         className="px-6 py-5 text-center"
-        style={{ backgroundColor: "#131826" }}
       >
         <h3 className="text-4xl font-semibold mb-6 text-yellow-300">
           About Vape Vault
@@ -273,7 +269,7 @@ export default function Landing() {
           experience. Our products are tested, stylish, and built for your
           lifestyle.
         </p>
-      </section>
+      </motion.section>
 
       {/* Divider */}
       <div className="border-t border-white/10 w-full" />
