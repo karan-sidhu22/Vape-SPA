@@ -14,6 +14,7 @@ import {
   EllipsisVerticalIcon,
 } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolid } from "@heroicons/react/24/solid";
+import { motion } from "framer-motion";
 import BrandPromise from "app/components/BrandPromise";
 import SiteFooter from "app/components/SiteFooter";
 
@@ -21,29 +22,39 @@ import SiteFooter from "app/components/SiteFooter";
 function FadeInOnScroll({ children }) {
   const ref = useRef(null);
   const [visible, setVisible] = useState(false);
+
   useEffect(() => {
     if (!ref.current) return;
+
     const obs = new IntersectionObserver(
-      ([e]) => {
-        if (e.isIntersecting) {
+      ([entry]) => {
+        if (entry.isIntersecting) {
           setVisible(true);
-          obs.unobserve(ref.current);
+          obs.unobserve(entry.target);
         }
       },
       { threshold: 0.1 }
     );
-    obs.observe(ref.current);
+
+    // ✅ ensure visible if already in viewport at load
+    if (ref.current.getBoundingClientRect().top < window.innerHeight) {
+      setVisible(true);
+    } else {
+      obs.observe(ref.current);
+    }
+
     return () => obs.disconnect();
   }, []);
+
   return (
-    <div
+    <motion.div
       ref={ref}
-      className={`transition-all duration-700 ease-out ${
-        visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-      }`}
+      initial={{ opacity: 0, y: 30 }}
+      animate={visible ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.7, ease: "easeOut" }}
     >
       {children}
-    </div>
+    </motion.div>
   );
 }
 
@@ -252,7 +263,12 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen bg-gray-900 text-white">
       {/* ——— Header ——— */}
-      <header className="fixed inset-x-0 top-4 z-50 px-4">
+      <motion.header
+        initial={{ opacity: 0, y: -30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, ease: "easeOut" }}
+        className="fixed inset-x-0 top-4 z-50 px-4"
+      >
         <div className="mx-auto w-full max-w-[1600px] bg-black/60 backdrop-blur-lg border border-white/20 rounded-3xl flex items-center justify-between px-8 py-4 shadow-2xl">
           {/* Logo */}
           <div className="flex items-center space-x-3">
@@ -372,7 +388,7 @@ export default function Home() {
             </button>
           </nav>
         </div>
-      </header>
+      </motion.header>
 
       <main className="pt-32">
         {/* — Hero Section */}
