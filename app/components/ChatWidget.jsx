@@ -79,10 +79,14 @@ export default function ChatWidget() {
       {/* floating button */}
       <button
         onClick={() => setIsOpen((o) => !o)}
-        className="fixed bottom-6 right-6 bg-yellow-300 text-black p-3 rounded-full shadow-lg z-50"
+        className="fixed bottom-6 right-6 z-50 flex items-center space-x-2 px-5 py-3 rounded-full shadow-lg bg-[#141825] border border-white/10 hover:border-yellow-400 hover:shadow-yellow-400/30 transition"
         aria-label="Chat"
       >
-        💬
+        {/* Icon */}
+        <div className="flex items-center justify-center w-7 h-7 bg-white-400 text-black font-bold rounded-md">
+          ✨
+        </div>
+        <span className="font-semibold text-yellow-300">AI Assistant</span>
       </button>
 
       {/* chatbox */}
@@ -93,12 +97,18 @@ export default function ChatWidget() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 30, scale: 0.9 }}
             transition={{ duration: 0.25 }}
-            className="fixed bottom-20 right-6 w-96 h-[500px] bg-gray-900 text-white rounded-lg shadow-2xl flex flex-col z-50"
+            className="fixed bottom-20 right-6 w-96 h-[500px] bg-[#141825] text-white rounded-lg shadow-2xl flex flex-col z-50 border border-white/10"
           >
             {/* header */}
-            <div className="flex items-center justify-between p-2 border-b border-gray-700">
-              <span className="font-semibold">Vape Vault Chat</span>
-              <button onClick={() => setIsOpen(false)} aria-label="Close chat">
+            <div className="flex items-center justify-between p-3 border-b border-white/10">
+              <span className="font-semibold text-yellow-300">
+                Vape Vault Chat
+              </span>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="text-white/70 hover:text-red-400"
+                aria-label="Close chat"
+              >
                 ✕
               </button>
             </div>
@@ -111,7 +121,7 @@ export default function ChatWidget() {
                   className={`max-w-[80%] p-2 rounded-lg whitespace-pre-wrap ${
                     m.role === "user"
                       ? "bg-yellow-300 text-black ml-auto"
-                      : "bg-gray-800 text-white"
+                      : "bg-white/10 text-white"
                   }`}
                 >
                   {m.content}
@@ -120,7 +130,7 @@ export default function ChatWidget() {
 
               {/* typing indicator */}
               {loading && (
-                <div className="bg-gray-800 text-white text-sm px-3 py-2 rounded-lg inline-block">
+                <div className="bg-white/10 text-white text-sm px-3 py-2 rounded-lg inline-block">
                   Assistant is typing…
                 </div>
               )}
@@ -128,7 +138,7 @@ export default function ChatWidget() {
             </div>
 
             {/* input area */}
-            <div className="p-2 border-t border-gray-700">
+            <div className="p-3 border-t border-white/10">
               <textarea
                 rows={1}
                 value={input}
@@ -136,12 +146,12 @@ export default function ChatWidget() {
                 onKeyDown={handleKey}
                 placeholder="Ask me about our products…"
                 disabled={loading}
-                className="w-full bg-gray-800 rounded p-2 focus:outline-yellow-400 resize-none text-white text-sm"
+                className="w-full bg-white/10 rounded p-2 focus:outline-yellow-400 resize-none text-white text-sm"
               />
               <button
                 onClick={sendMessage}
                 disabled={loading}
-                className="mt-1 w-full bg-yellow-300 text-black rounded py-1 disabled:opacity-50"
+                className="mt-2 w-full bg-yellow-400 text-black rounded py-2 font-semibold hover:bg-yellow-500 disabled:opacity-50"
               >
                 {loading ? "…" : "Send"}
               </button>
