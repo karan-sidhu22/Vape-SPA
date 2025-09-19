@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
+import { motion } from "framer-motion"; // ✅ Added animations
 
 export default function SigninForm() {
   const router = useRouter();
@@ -52,20 +53,53 @@ export default function SigninForm() {
     }
   };
 
-  return (
-    <div className="w-full max-w-md bg-white/10 backdrop-blur-md border border-white/20 rounded-xl shadow-lg p-8">
-      <h2 className="text-3xl font-bold text-center text-yellow-300 mb-6">
-        Sign In to Your Account
-      </h2>
+  // 🔹 Animation variants
+  const fieldVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 },
+  };
 
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.5 }}
+      className="w-full max-w-md bg-white/10 backdrop-blur-md border border-white/20 rounded-xl shadow-lg p-8"
+    >
+      {/* Heading */}
+      <motion.h2
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+        className="text-3xl font-bold text-center text-yellow-300 mb-6"
+      >
+        Sign In to Your Account
+      </motion.h2>
+
+      {/* Error */}
       {error && (
-        <div className="mb-4 p-3 bg-red-100/20 border-l-4 border-red-400 text-red-300 rounded">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="mb-4 p-3 bg-red-500/20 border border-red-400 text-red-300 rounded"
+        >
           {error}
-        </div>
+        </motion.div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
+      {/* Form */}
+      <motion.form
+        onSubmit={handleSubmit}
+        className="space-y-4"
+        initial="hidden"
+        animate="visible"
+        variants={{
+          hidden: {},
+          visible: { transition: { staggerChildren: 0.15 } },
+        }}
+      >
+        {/* Email */}
+        <motion.div variants={fieldVariants}>
           <label htmlFor="email" className="block text-white mb-1">
             Email Address <span className="text-red-500">*</span>
           </label>
@@ -78,9 +112,10 @@ export default function SigninForm() {
             className="w-full px-4 py-2 bg-white/20 border border-white/30 text-white placeholder-white/70 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 transition"
             placeholder="you@example.com"
           />
-        </div>
+        </motion.div>
 
-        <div>
+        {/* Password */}
+        <motion.div variants={fieldVariants}>
           <label htmlFor="password" className="block text-white mb-1">
             Password <span className="text-red-500">*</span>
           </label>
@@ -93,11 +128,14 @@ export default function SigninForm() {
             className="w-full px-4 py-2 bg-white/20 border border-white/30 text-white placeholder-white/70 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 transition"
             placeholder="Your password"
           />
-        </div>
+        </motion.div>
 
-        <button
+        {/* Submit Button */}
+        <motion.button
           type="submit"
           disabled={loading}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           className={`w-full py-3 rounded-lg font-medium transition ${
             loading
               ? "bg-yellow-200 cursor-not-allowed text-black"
@@ -105,10 +143,16 @@ export default function SigninForm() {
           }`}
         >
           {loading ? "Signing In…" : "Sign In"}
-        </button>
-      </form>
+        </motion.button>
+      </motion.form>
 
-      <div className="mt-6 text-center text-sm text-white/80">
+      {/* Footer Link */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6 }}
+        className="mt-6 text-center text-sm text-white/80"
+      >
         Don’t have an account?{" "}
         <Link
           href="/signup"
@@ -116,7 +160,7 @@ export default function SigninForm() {
         >
           Sign Up
         </Link>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
