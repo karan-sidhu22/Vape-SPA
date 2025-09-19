@@ -1,10 +1,10 @@
-// app/signup/page.js
 "use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import Link from "next/link";
+import { motion } from "framer-motion"; // ✅ Added
 
 export default function SignupPage() {
   const router = useRouter();
@@ -86,12 +86,22 @@ export default function SignupPage() {
     }
   };
 
+  // 🔹 Animation Variants
+  const formVariants = {
+    hidden: { opacity: 0, y: 40 },
+    visible: { opacity: 1, y: 0 },
+  };
+
   return (
     <div
       className="min-h-screen flex flex-col"
       style={{ backgroundColor: "#131826" }}
     >
-      <header
+      {/* Header */}
+      <motion.header
+        initial={{ y: -60, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.6 }}
         className="flex justify-center items-center px-6 py-4 border-b border-white/10"
         style={{ backgroundColor: "#141825" }}
       >
@@ -99,22 +109,47 @@ export default function SignupPage() {
           <img src="/Logo.png" alt="Vape-SPA Logo" className="w-20 h-20" />
           <h1 className="text-3xl font-bold text-yellow-300">Vape-SPA</h1>
         </Link>
-      </header>
+      </motion.header>
 
+      {/* Main Form */}
       <main className="flex-1 flex items-center justify-center px-6 py-12">
-        <div className="w-full max-w-md bg-white/10 backdrop-blur-md border border-white/20 rounded-xl shadow-lg p-8">
-          <h2 className="text-3xl font-bold text-center text-yellow-300 mb-6">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6 }}
+          className="w-full max-w-md bg-white/10 backdrop-blur-md border border-white/20 rounded-xl shadow-lg p-8"
+        >
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="text-3xl font-bold text-center text-yellow-300 mb-6"
+          >
             Create an Account
-          </h2>
+          </motion.h2>
 
           {error && (
-            <div className="mb-4 p-3 bg-red-500/20 border border-red-400 text-red-300 rounded">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="mb-4 p-3 bg-red-500/20 border border-red-400 text-red-300 rounded"
+            >
               {error}
-            </div>
+            </motion.div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4 text-white">
-            <div>
+          <motion.form
+            onSubmit={handleSubmit}
+            className="space-y-4 text-white"
+            initial="hidden"
+            animate="visible"
+            variants={{
+              hidden: {},
+              visible: { transition: { staggerChildren: 0.15 } },
+            }}
+          >
+            {/* Name */}
+            <motion.div variants={formVariants}>
               <label htmlFor="name" className="block mb-1">
                 Full Name <span className="text-red-500">*</span>
               </label>
@@ -126,9 +161,10 @@ export default function SignupPage() {
                 className="w-full px-4 py-2 bg-white/10 border border-white/20 text-white placeholder-white/60 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
                 placeholder="Harkaran Singh"
               />
-            </div>
+            </motion.div>
 
-            <div>
+            {/* Email */}
+            <motion.div variants={formVariants}>
               <label htmlFor="email" className="block mb-1">
                 Email Address <span className="text-red-500">*</span>
               </label>
@@ -141,9 +177,10 @@ export default function SignupPage() {
                 className="w-full px-4 py-2 bg-white/10 border border-white/20 text-white placeholder-white/60 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
                 placeholder="you@example.com"
               />
-            </div>
+            </motion.div>
 
-            <div>
+            {/* Password */}
+            <motion.div variants={formVariants}>
               <label htmlFor="password" className="block mb-1">
                 Password <span className="text-red-500">*</span>
               </label>
@@ -173,9 +210,10 @@ export default function SignupPage() {
               <p className="text-xs text-gray-400 mt-1">
                 Include uppercase, numbers, and symbols for stronger security
               </p>
-            </div>
+            </motion.div>
 
-            <div>
+            {/* Confirm Password */}
+            <motion.div variants={formVariants}>
               <label htmlFor="confirmPassword" className="block mb-1">
                 Confirm Password <span className="text-red-500">*</span>
               </label>
@@ -188,11 +226,14 @@ export default function SignupPage() {
                 className="w-full px-4 py-2 bg-white/10 border border-white/20 text-white placeholder-white/60 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400"
                 placeholder="Re-enter your password"
               />
-            </div>
+            </motion.div>
 
-            <button
+            {/* Button */}
+            <motion.button
               type="submit"
               disabled={loading}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               className={`w-full py-3 rounded-lg font-medium text-black transition ${
                 loading
                   ? "bg-yellow-200 cursor-not-allowed"
@@ -200,10 +241,15 @@ export default function SignupPage() {
               }`}
             >
               {loading ? "Creating Account…" : "Sign Up"}
-            </button>
-          </form>
+            </motion.button>
+          </motion.form>
 
-          <div className="mt-6 text-center text-sm text-white/70">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8 }}
+            className="mt-6 text-center text-sm text-white/70"
+          >
             Already have an account?{" "}
             <Link
               href="/signin"
@@ -211,10 +257,11 @@ export default function SignupPage() {
             >
               Sign In
             </Link>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </main>
 
+      {/* Footer */}
       <footer
         className="text-white/60 text-center p-6 text-sm border-t border-white/10"
         style={{ backgroundColor: "#141825" }}
