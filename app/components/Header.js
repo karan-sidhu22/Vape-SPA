@@ -2,15 +2,14 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabaseClient';
+import { motion } from 'framer-motion';
 
 export default function Header() {
   const pathname = usePathname();
   const router = useRouter();
-  const [searchQuery, setSearchQuery] = useState('');
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -25,18 +24,33 @@ export default function Header() {
   };
 
   return (
-    <header className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 bg-white/10 backdrop-blur-md border border-white/20 px-6 py-4 shadow-xl rounded-3xl w-[90%] max-w-7xl">
+    <motion.header
+      initial={{ opacity: 0, y: -40 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, ease: 'easeOut' }}
+      className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 bg-white/10 backdrop-blur-md border border-white/20 px-6 py-4 shadow-xl rounded-3xl w-[90%] max-w-7xl"
+    >
       <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-        <div className="flex items-center justify-center md:justify-start w-full md:w-auto">
+        {/* Logo */}
+        <motion.div
+          initial={{ opacity: 0, x: -30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="flex items-center justify-center md:justify-start w-full md:w-auto"
+        >
           <Link href="/" className="flex items-center space-x-3">
             <Image src="/Logo.png" alt="Vape Vault Logo" width={60} height={60} />
             <h1 className="text-2xl font-bold text-yellow-300">Vape Vault</h1>
           </Link>
-        </div>
+        </motion.div>
 
-        
-
-        <nav className="space-x-6 text-lg flex items-center justify-center md:justify-end w-full md:w-auto">
+        {/* Nav */}
+        <motion.nav
+          initial={{ opacity: 0, x: 30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="space-x-6 text-lg flex items-center justify-center md:justify-end w-full md:w-auto"
+        >
           <Link href="/account" className="hover:text-yellow-400">My Account</Link>
           <Link href="/wishlist" className="hover:text-yellow-400">Wishlist</Link>
           <Link href="/cart" className="hover:text-yellow-400">Cart</Link>
@@ -48,8 +62,8 @@ export default function Header() {
               Logout
             </button>
           )}
-        </nav>
+        </motion.nav>
       </div>
-    </header>
+    </motion.header>
   );
 }
