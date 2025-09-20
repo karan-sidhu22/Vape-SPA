@@ -8,11 +8,17 @@ import Header from "app/components/Header";
 import LoadingSpinner from "app/components/LoadingSpinner";
 import { HeartIcon } from "@heroicons/react/24/solid";
 import SiteFooter from "@/app/components/SiteFooter";
+import { motion, AnimatePresence } from "framer-motion";
 
 function EmptyWishlist() {
   const router = useRouter();
   return (
-    <div className="text-center py-16 px-6 bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl shadow-lg text-white max-w-xl mx-auto">
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      className="text-center py-16 px-6 bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl shadow-lg text-white max-w-xl mx-auto"
+    >
       <HeartIcon className="h-12 w-12 text-yellow-400 mx-auto mb-4" />
       <p className="text-white text-lg mb-4">Your wishlist is empty.</p>
       <button
@@ -21,7 +27,7 @@ function EmptyWishlist() {
       >
         Browse Products
       </button>
-    </div>
+    </motion.div>
   );
 }
 
@@ -104,30 +110,59 @@ export default function WishlistPage() {
   return (
     <div
       className="min-h-screen flex flex-col text-white"
-      style={{ backgroundColor: "#131826"}}
+      style={{ backgroundColor: "#131826" }}
     >
       <Header />
 
-      <h1 className="text-3xl mt-40 font-bold text-yellow-300 text-center">
+      <motion.h1
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, ease: "easeOut" }}
+        className="text-3xl mt-40 font-bold text-yellow-300 text-center"
+      >
         Your Wishlist
-      </h1>
+      </motion.h1>
 
       <main className="flex-1 container mx-auto px-6 py-10">
-        {error && (
-          <div className="bg-red-100/10 border-l-4 border-red-400 text-red-300 p-4 mb-6 rounded-lg">
-            {error}
-          </div>
-        )}
+        <AnimatePresence>
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.4 }}
+              className="bg-red-100/10 border-l-4 border-red-400 text-red-300 p-4 mb-6 rounded-lg"
+            >
+              {error}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {items.length === 0 ? (
           <div className="flex justify-center items-center w-full h-96">
             <EmptyWishlist />
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <motion.div
+            initial="hidden"
+            animate="show"
+            variants={{
+              hidden: { opacity: 0 },
+              show: {
+                opacity: 1,
+                transition: { staggerChildren: 0.15 },
+              },
+            }}
+            className="grid grid-cols-1 md:grid-cols-2 gap-6"
+          >
             {items.map(({ id, products }) => (
-              <div
+              <motion.div
                 key={id}
+                variants={{
+                  hidden: { opacity: 0, y: 20 },
+                  show: { opacity: 1, y: 0 },
+                }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
                 className="flex flex-col md:flex-row bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl shadow-md hover:shadow-lg transition overflow-hidden"
               >
                 <div className="relative w-full md:w-1/4 h-48 bg-black/40">
@@ -174,9 +209,9 @@ export default function WishlistPage() {
                     )}
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         )}
       </main>
 

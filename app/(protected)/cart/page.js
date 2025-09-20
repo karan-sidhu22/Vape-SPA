@@ -8,6 +8,7 @@ import LoadingSpinner from "app/components/LoadingSpinner";
 import EmptyCart from "app/components/EmptyCart";
 import Header from "app/components/Header";
 import SiteFooter from "app/components/SiteFooter";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function CartPage() {
   const [user, setUser] = useState(null);
@@ -173,28 +174,63 @@ export default function CartPage() {
     >
       <Header />
 
-      <h1 className="text-3xl mt-40 font-bold text-yellow-300 text-center">
+      {/* Animated heading */}
+      <motion.h1
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, ease: "easeOut" }}
+        className="text-3xl mt-40 font-bold text-yellow-300 text-center"
+      >
         Your Cart
-      </h1>
+      </motion.h1>
 
       <main className="flex-1 container mx-auto px-6 py-10">
-        {error && (
-          <div className="bg-red-100/10 border-l-4 border-red-400 text-red-300 p-4 mb-6 rounded-lg">
-            {error}
-          </div>
-        )}
+        <AnimatePresence>
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.4 }}
+              className="bg-red-100/10 border-l-4 border-red-400 text-red-300 p-4 mb-6 rounded-lg"
+            >
+              {error}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {cartItems.length === 0 ? (
-          <div className="flex justify-center items-center w-full h-96">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            className="flex justify-center items-center w-full h-96"
+          >
             <EmptyCart />
-          </div>
+          </motion.div>
         ) : (
           <div className="flex flex-col lg:flex-row gap-8">
             {/* Cart items */}
-            <div className="flex-1 space-y-6">
+            <motion.div
+              initial="hidden"
+              animate="show"
+              variants={{
+                hidden: { opacity: 0 },
+                show: {
+                  opacity: 1,
+                  transition: { staggerChildren: 0.15 },
+                },
+              }}
+              className="flex-1 space-y-6"
+            >
               {cartItems.map((item) => (
-                <div
+                <motion.div
                   key={item.id}
+                  variants={{
+                    hidden: { opacity: 0, y: 20 },
+                    show: { opacity: 1, y: 0 },
+                  }}
+                  transition={{ duration: 0.5, ease: "easeOut" }}
                   className="flex flex-col md:flex-row bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl shadow-md"
                 >
                   <div className="relative w-full md:w-1/4 h-48">
@@ -251,12 +287,17 @@ export default function CartPage() {
                       </div>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
 
             {/* Order summary */}
-            <div className="lg:w-96 w-full">
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+              className="lg:w-96 w-full"
+            >
               <div className="bg-white/10 backdrop-blur-lg border border-white/20 p-6 rounded-lg shadow-md sticky top-28">
                 <h2 className="text-2xl font-bold mb-4 text-yellow-300">
                   Order Summary
@@ -288,7 +329,7 @@ export default function CartPage() {
                   {checkoutLoading ? "Processing..." : "Proceed to Checkout"}
                 </button>
               </div>
-            </div>
+            </motion.div>
           </div>
         )}
       </main>
