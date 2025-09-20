@@ -262,11 +262,21 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-900 text-white">
-      {/* ——— Header ——— */}
+      {/* ——— Animated Header ——— */}
       <motion.header
-        initial={{ opacity: 0, y: -30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, ease: "easeOut" }}
+        initial={{ opacity: 0, y: -50, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{
+          duration: 0.9,
+          ease: [0.25, 0.1, 0.25, 1],
+          type: "spring",
+          stiffness: 80,
+          damping: 15,
+        }}
+        whileHover={{
+          scale: 1.02,
+          boxShadow: "0px 8px 30px rgba(255, 221, 87, 0.25)",
+        }}
         className="fixed inset-x-0 top-4 z-50 px-4"
       >
         <div className="mx-auto w-full max-w-[1600px] bg-black/60 backdrop-blur-lg border border-white/20 rounded-3xl flex items-center justify-between px-8 py-4 shadow-2xl">
