@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Header from "app/components/Header";
 import SiteFooter from "app/components/SiteFooter";
 import AddressAutocomplete from "app/components/AddressAutocomplete";
+import { motion } from "framer-motion";
 
 export default function MyAccountPage() {
   const router = useRouter();
@@ -179,19 +180,30 @@ export default function MyAccountPage() {
       <Header />
 
       <main className="flex-1 pt-32 pb-16 px-4">
-        <div
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, ease: "easeOut" }}
           className={`max-w-6xl mx-auto gap-8 ${
             lastPlace ? "grid grid-cols-1 lg:grid-cols-2" : "flex justify-center"
           }`}
         >
           {/* Form */}
-          <div className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-8 shadow-xl w-full max-w-md">
+          <motion.div
+            initial={{ opacity: 0, x: -40 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl p-8 shadow-xl w-full max-w-md"
+          >
             <h1 className="text-3xl font-bold text-center text-yellow-300 mb-6">
               My Account
             </h1>
 
             {message && (
-              <div
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3 }}
                 className={`mb-4 p-3 rounded ${
                   message.type === "error"
                     ? "bg-red-100/10 border border-red-400 text-red-300"
@@ -199,7 +211,7 @@ export default function MyAccountPage() {
                 }`}
               >
                 {message.text}
-              </div>
+              </motion.div>
             )}
 
             <form onSubmit={handleSave} className="space-y-6">
@@ -259,19 +271,24 @@ export default function MyAccountPage() {
                 </button>
               </div>
             </form>
-          </div>
+          </motion.div>
 
           {/* Map */}
           {lastPlace && (
-            <div className="h-80 lg:h-auto rounded-2xl overflow-hidden bg-white/10 backdrop-blur-lg border border-white/20 shadow-lg">
+            <motion.div
+              initial={{ opacity: 0, x: 40 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
+              className="h-80 lg:h-auto rounded-2xl overflow-hidden bg-white/10 backdrop-blur-lg border border-white/20 shadow-lg"
+            >
               <div
                 ref={mapRef}
                 className="w-full h-full"
                 style={{ minHeight: "300px" }}
               />
-            </div>
+            </motion.div>
           )}
-        </div>
+        </motion.div>
       </main>
 
       <SiteFooter />
@@ -290,7 +307,11 @@ function InputField({
   placeholder,
 }) {
   return (
-    <div>
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
       <label htmlFor={id} className="block mb-1 font-medium text-white">
         {label}
       </label>
@@ -307,6 +328,6 @@ function InputField({
             : "bg-white/10 text-white"
         }`}
       />
-    </div>
+    </motion.div>
   );
 }
