@@ -5,18 +5,27 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabaseClient";
+import { motion } from "framer-motion";
 
-function StatCard({ title, value, subtitle }) {
+function StatCard({ title, value, subtitle, delay = 0 }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/5 p-6 shadow-sm backdrop-blur">
+    <motion.div
+      initial={{ opacity: 0, y: 30, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ duration: 0.6, delay, type: "spring", stiffness: 100 }}
+      whileHover={{ scale: 1.03, boxShadow: "0px 8px 20px rgba(255, 221, 87, 0.15)" }}
+      className="rounded-2xl border border-white/10 bg-white/5 p-6 shadow-sm backdrop-blur"
+    >
       <div className="flex items-center justify-between">
         <p className="text-sm text-white/70">{title}</p>
       </div>
-      <p className="mt-3 text-4xl font-semibold tracking-tight">{value}</p>
+      <p className="mt-3 text-4xl font-semibold tracking-tight text-yellow-300">
+        {value}
+      </p>
       {subtitle ? (
         <p className="mt-1 text-xs text-white/60">{subtitle}</p>
       ) : null}
-    </div>
+    </motion.div>
   );
 }
 
@@ -141,9 +150,19 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="p-6 md:p-8 space-y-6 text-white">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.6 }}
+      className="p-6 md:p-8 space-y-6 text-white bg-gray-900 min-h-screen"
+    >
       {/* Top bar */}
-      <div className="flex items-center justify-between">
+      <motion.div
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.6 }}
+        className="flex items-center justify-between"
+      >
         <button
           onClick={() => router.back()}
           className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-2 transition hover:bg-white/10"
@@ -166,20 +185,32 @@ export default function AdminPage() {
             ⎋ Sign out
           </button>
         </div>
-      </div>
+      </motion.div>
 
       {/* Title */}
-      <div className="space-y-1">
-        <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+        className="space-y-1"
+      >
+        <h1 className="text-3xl font-bold tracking-tight text-yellow-300">
+          Admin Dashboard
+        </h1>
         <p className="text-sm text-white/60">
           Overview of orders and users.{" "}
           {formattedUpdated ? `Last updated: ${formattedUpdated}` : null}
         </p>
-      </div>
+      </motion.div>
 
       {/* Error */}
       {error ? (
-        <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm"
+        >
           <p className="font-medium text-red-200">Error</p>
           <p className="text-red-100/90 mt-1">{error}</p>
           <div className="mt-3">
@@ -190,7 +221,7 @@ export default function AdminPage() {
               Try again
             </button>
           </div>
-        </div>
+        </motion.div>
       ) : null}
 
       {/* Stats */}
@@ -202,14 +233,19 @@ export default function AdminPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-          <StatCard title="Total Orders" value={stats.totalOrders} subtitle="All-time order count" />
-          <StatCard title="Pending Orders" value={stats.pendingOrders} subtitle="Awaiting fulfillment" />
-          <StatCard title="Total Users" value={stats.totalUsers} subtitle="Registered accounts" />
+          <StatCard title="Total Orders" value={stats.totalOrders} subtitle="All-time order count" delay={0.1} />
+          <StatCard title="Pending Orders" value={stats.pendingOrders} subtitle="Awaiting fulfillment" delay={0.2} />
+          <StatCard title="Total Users" value={stats.totalUsers} subtitle="Registered accounts" delay={0.3} />
         </div>
       )}
 
       {/* Links */}
-      <div className="space-y-3 rounded-2xl border border-white/10 bg-white/5 p-6">
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.4 }}
+        className="space-y-3 rounded-2xl border border-white/10 bg-white/5 p-6"
+      >
         <p className="text-sm font-semibold tracking-wide text-white/70">
           Management
         </p>
@@ -239,12 +275,12 @@ export default function AdminPage() {
             Analytics &amp; Reporting
           </Link>
         </div>
-      </div>
+      </motion.div>
 
       <p className="pt-2 text-xs text-white/50">
         Tip: Use RLS policies so only admins can access this route, and consider
         moving this to a server component if you later surface sensitive data.
       </p>
-    </div>
+    </motion.div>
   );
 }
