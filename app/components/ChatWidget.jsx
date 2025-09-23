@@ -79,14 +79,14 @@ export default function ChatWidget() {
       {/* floating button */}
       <button
         onClick={() => setIsOpen((o) => !o)}
-        className="fixed bottom-6 right-6 z-50 flex items-center space-x-2 px-5 py-3 rounded-full shadow-lg bg-[#141825] border border-white/10 hover:border-yellow-400 hover:shadow-yellow-400/30 transition"
+        className="fixed bottom-6 right-6 z-50 flex items-center space-x-2 px-4 py-2 rounded-full shadow-lg bg-[#141825] border border-white/10 hover:border-yellow-400 hover:shadow-yellow-400/30 transition"
         aria-label="Chat"
       >
         {/* Icon */}
-        <div className="flex items-center justify-center w-7 h-7 bg-white-400 text-black font-bold rounded-md">
+        <div className="flex items-center justify-center w-5 h-5 bg-white text-black font-bold rounded-md text-sm">
           ✨
         </div>
-        <span className="font-semibold text-yellow-300">AI Assistant</span>
+        <span className="font-semibold text-yellow-300 text-sm">AI Assistant</span>
       </button>
 
       {/* chatbox */}
@@ -97,7 +97,7 @@ export default function ChatWidget() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 30, scale: 0.9 }}
             transition={{ duration: 0.25 }}
-            className="fixed bottom-20 right-6 w-96 h-[500px] bg-[#141825] text-white rounded-lg shadow-2xl flex flex-col z-50 border border-white/10"
+            className="fixed bottom-20 right-6 w-80 sm:w-96 h-[450px] sm:h-[500px] bg-[#141825] text-white rounded-lg shadow-2xl flex flex-col z-50 border border-white/10"
           >
             {/* header */}
             <div className="flex items-center justify-between p-3 border-b border-white/10">
