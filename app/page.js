@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import BrandPromise from "app/components/BrandPromise";
 import SiteFooter from "./components/SiteFooter";
-import { motion } from "framer-motion"; // ✅ Added Framer Motion
+import { motion } from "framer-motion"; // ✅ Framer Motion
 
 const products = [
   {
@@ -108,24 +108,48 @@ export default function Landing() {
         <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
           <div className="flex items-center space-x-4 w-full md:w-auto">
             <Link href="/" className="flex items-center space-x-3">
-              <Image src="/Logo.png" alt="Vape Vault Logo" width={60} height={60} />
+              <Image
+                src="/Logo.png"
+                alt="Vape Vault Logo"
+                width={60}
+                height={60}
+              />
               <h1 className="text-3xl font-bold text-yellow-300">Vape Vault</h1>
             </Link>
           </div>
 
           <nav className="space-x-6 text-lg flex items-center justify-center md:justify-end w-full md:w-auto">
-            <Link href="/signin" className="text-yellow-400 hover:text-yellow-300">Sign In</Link>
-            <Link href="/signup" className="text-yellow-400 hover:text-yellow-300">Sign Up</Link>
-            <Link href="#products" className="text-white hover:text-gray-300">Products</Link>
-            <Link href="#about" className="text-white hover:text-gray-300">About</Link>
-            <Link href="#contact" className="text-white hover:text-gray-300">Contact</Link>
+            <Link
+              href="/signin"
+              className="text-yellow-400 hover:text-yellow-300"
+            >
+              Sign In
+            </Link>
+            <Link
+              href="/signup"
+              className="text-yellow-400 hover:text-yellow-300"
+            >
+              Sign Up
+            </Link>
+            <Link href="#products" className="text-white hover:text-gray-300">
+              Products
+            </Link>
+            <Link href="#about" className="text-white hover:text-gray-300">
+              About
+            </Link>
+            <Link href="#contact" className="text-white hover:text-gray-300">
+              Contact
+            </Link>
           </nav>
         </div>
       </motion.header>
 
       {/* Hero */}
       <main className="relative pt-52 px-6 pb-20 text-center flex-1 overflow-hidden">
-        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url('/vape_back.png')` }} />
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: `url('/vape_back.png')` }}
+        />
         <div className="absolute inset-0 bg-black/50" />
         <motion.div
           initial={{ opacity: 0, y: 40 }}
@@ -137,11 +161,17 @@ export default function Landing() {
             Discover Your Next Favorite Vape
           </h2>
           <p className="text-xl text-white max-w-2xl mx-auto mb-8">
-            Premium vape products, stylish designs, and smooth flavors – all in one place.
+            Premium vape products, stylish designs, and smooth flavors – all in
+            one place.
           </p>
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
+            onClick={() =>
+              document.getElementById("products")?.scrollIntoView({
+                behavior: "smooth",
+              })
+            }
             className="bg-yellow-300 hover:bg-yellow-400 px-6 py-3 rounded-full text-lg font-medium text-black transition"
           >
             Browse Products
@@ -238,6 +268,9 @@ export default function Landing() {
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
+                    onClick={() =>
+                      router.push(`/signin?redirect=/product/${product.id}`)
+                    }
                     className="mt-auto w-full bg-yellow-300 hover:bg-yellow-400 text-black py-3 rounded-lg font-medium transition"
                   >
                     View Details

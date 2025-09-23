@@ -95,6 +95,15 @@ export default function WishlistPage() {
     }
   };
 
+  // ✅ Function to enforce sign in before product detail
+  const handleProductClick = (productId) => {
+    if (!user) {
+      router.push(`/signin?redirect=/product/${productId}`);
+    } else {
+      router.push(`/product/${productId}`);
+    }
+  };
+
   if (loading) {
     return (
       <div
@@ -171,7 +180,7 @@ export default function WishlistPage() {
                     alt={products.name}
                     fill
                     className="object-contain p-4 cursor-pointer"
-                    onClick={() => router.push(`/product/${products.id}`)}
+                    onClick={() => handleProductClick(products.id)}
                   />
                 </div>
                 <div className="p-6 flex flex-col justify-between flex-1">
@@ -179,7 +188,7 @@ export default function WishlistPage() {
                     <div>
                       <h2
                         className="text-xl font-semibold cursor-pointer hover:text-yellow-400"
-                        onClick={() => router.push(`/product/${products.id}`)}
+                        onClick={() => handleProductClick(products.id)}
                       >
                         {products.name}
                       </h2>
@@ -208,6 +217,13 @@ export default function WishlistPage() {
                       </span>
                     )}
                   </div>
+                  {/* ✅ View Details button */}
+                  <button
+                    onClick={() => handleProductClick(products.id)}
+                    className="mt-4 w-full bg-yellow-400 text-black px-6 py-2 rounded-md font-medium hover:bg-yellow-500 transition"
+                  >
+                    View Details
+                  </button>
                 </div>
               </motion.div>
             ))}

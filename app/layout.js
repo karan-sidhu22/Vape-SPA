@@ -14,6 +14,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+  ), // ✅ Fixes OpenGraph warning
   title: "Vape Vault – Premium Vape Devices",
   description:
     "Discover premium vape products at Vape Vault – stylish, powerful, and built for your lifestyle.",
@@ -56,7 +59,7 @@ export default function RootLayout({ children }) {
           src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places`}
           async
         />
-        {/* Manifest for PWA / mobile support */}
+        {/* ✅ Manifest for PWA / mobile support (make sure public/site.webmanifest exists) */}
         <link rel="manifest" href="/site.webmanifest" />
       </head>
       <body
