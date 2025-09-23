@@ -1,3 +1,4 @@
+// app/(protected)/home/page.js
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
@@ -35,6 +36,7 @@ function FadeInOnScroll({ children }) {
       { threshold: 0.1 }
     );
 
+    // ✅ ensure visible if already in viewport at load
     if (ref.current.getBoundingClientRect().top < window.innerHeight) {
       setVisible(true);
     } else {
@@ -59,45 +61,48 @@ function FadeInOnScroll({ children }) {
 export default function Home() {
   const router = useRouter();
 
-  // Auth & loading
+  // — auth & loading
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Data
+  // — data
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
 
-  // Cart & wishlist
+  // — cart & wishlist
   const [cartId, setCartId] = useState(null);
   const [cartMap, setCartMap] = useState({});
   const [wishlistId, setWishlistId] = useState(null);
   const [wishlistSet, setWishlistSet] = useState(new Set());
   const [processingId, setProcessingId] = useState(null);
 
-  // UI state
+  // — UI state
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("");
   const [brandFilter, setBrandFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [showFilterMenu, setShowFilterMenu] = useState(false);
-  const [showMobileMenu, setShowMobileMenu] = useState(false);
 
-  // Session check
+  // — session check
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (!data.session) router.replace("/signin");
-      else setUser(data.session.user);
+      if (!data.session) {
+        router.replace("/signin");
+      } else {
+        setUser(data.session.user);
+      }
     });
-
     const { data: sub } = supabase.auth.onAuthStateChange((_, sess) => {
-      if (!sess) router.replace("/signin");
-      else setUser(sess.user);
+      if (!sess) {
+        router.replace("/signin");
+      } else {
+        setUser(sess.user);
+      }
     });
-
     return () => sub?.subscription.unsubscribe();
   }, [router]);
 
-  // Fetch products & categories
+  // — fetch products & categories
   useEffect(() => {
     (async () => {
       const [pRes, cRes] = await Promise.all([
@@ -110,10 +115,9 @@ export default function Home() {
     })();
   }, []);
 
-  // Fetch cart & wishlist
+  // — fetch cart & wishlist
   useEffect(() => {
     if (!user) return;
-
     (async () => {
       const { data: cart } = await supabase
         .from("carts")
@@ -131,7 +135,6 @@ export default function Home() {
         );
       }
     })();
-
     (async () => {
       const { data: wl } = await supabase
         .from("wishlists")
@@ -149,13 +152,13 @@ export default function Home() {
     })();
   }, [user]);
 
-  // Logout
+  // — logout
   const handleLogout = async () => {
     await supabase.auth.signOut();
     router.replace("/");
   };
 
-  // Cart operations
+  // — cart ops
   const addToCart = async (pid) => {
     setProcessingId(pid);
     const prod = products.find((p) => p.id === pid);
@@ -179,7 +182,6 @@ export default function Home() {
     setCartMap((m) => ({ ...m, [pid]: now + 1 }));
     setProcessingId(null);
   };
-
   const updateCartQty = async (pid, delta) => {
     const prod = products.find((p) => p.id === pid);
     const now = cartMap[pid] || 0;
@@ -203,7 +205,7 @@ export default function Home() {
     }
   };
 
-  // Wishlist operations
+  // — wishlist ops
   const addToWishlist = async (pid) => {
     setProcessingId(pid);
     if (!wishlistId) {
@@ -220,7 +222,6 @@ export default function Home() {
     setWishlistSet((s) => new Set(s).add(pid));
     setProcessingId(null);
   };
-
   const removeFromWishlist = async (pid) => {
     setProcessingId(pid);
     await supabase
@@ -235,11 +236,10 @@ export default function Home() {
     setProcessingId(null);
   };
 
-  // Filters
+  // — dropdown logic
   const brandOptions = Array.from(
     new Set(products.map((p) => p.brand).filter(Boolean))
   );
-
   const suggestions = products
     .filter((p) => p.name.toLowerCase().includes(searchQuery.toLowerCase()))
     .filter((p) => (categoryFilter ? p.category_id === categoryFilter : true))
@@ -262,7 +262,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-900 text-white">
-      {/* Header */}
+      {/* ——— Animated Header ——— */}
       <motion.header
         initial={{ opacity: 0, y: -50, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -273,45 +273,21 @@ export default function Home() {
           stiffness: 80,
           damping: 15,
         }}
+        whileHover={{
+          scale: 1.02,
+          boxShadow: "0px 8px 30px rgba(255, 221, 87, 0.25)",
+        }}
         className="fixed inset-x-0 top-4 z-50 px-4"
       >
-        <div className="mx-auto w-full max-w-[1600px] bg-black/60 backdrop-blur-lg border border-white/20 rounded-3xl flex items-center justify-between px-4 py-2 sm:px-8 sm:py-4 shadow-2xl">
-          {/* Hamburger for mobile */}
-          <div className="sm:hidden">
-            <button
-              onClick={() => setShowMobileMenu((v) => !v)}
-              className="flex items-center justify-center w-8 h-8 bg-white/20 rounded-md text-white hover:bg-yellow-300 hover:text-black transition"
-              aria-label="Menu"
-            >
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
-            </button>
-          </div>
-
+        <div className="mx-auto w-full max-w-[1600px] bg-black/60 backdrop-blur-lg border border-white/20 rounded-3xl flex items-center justify-between px-8 py-4 shadow-2xl">
           {/* Logo */}
-          <div
-            className="flex items-center space-x-2 cursor-pointer"
-            onClick={() => router.push("/")}
-          >
-            <Image src="/Logo.png" width={50} height={50} alt="Vape Vault" />
-            <h1 className="text-xl sm:text-2xl font-bold text-yellow-300">
-              Vape Vault
-            </h1>
+          <div className="flex items-center space-x-3">
+            <Image src="/Logo.png" width={60} height={60} alt="Vape Vault" />
+            <h1 className="text-2xl font-bold text-yellow-300">Vape Vault</h1>
           </div>
 
-          {/* Desktop Search & Filters */}
-          <div className="hidden sm:flex relative flex-1 max-w-lg mx-4">
+          {/* Search + Filters */}
+          <div className="relative flex-1 max-w-lg mx-4">
             <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white/60" />
             <input
               type="text"
@@ -324,10 +300,84 @@ export default function Home() {
               onClick={() => setShowFilterMenu((v) => !v)}
               className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white cursor-pointer"
             />
+
+            {/* Filter Menu */}
+            {showFilterMenu && (
+              <div className="absolute right-0 mt-2 w-64 bg-black text-white border border-white/30 rounded-xl p-4 z-60 shadow-xl">
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="w-full mb-2 rounded bg-black border border-white/20 p-2 text-sm"
+                >
+                  <option value="">Sort by…</option>
+                  <option value="priceAsc">Price: Low → High</option>
+                  <option value="priceDesc">Price: High → Low</option>
+                  <option value="nameAsc">Name: A → Z</option>
+                  <option value="nameDesc">Name: Z → A</option>
+                </select>
+                <select
+                  value={categoryFilter}
+                  onChange={(e) => {
+                    setCategoryFilter(e.target.value);
+                    setBrandFilter("");
+                  }}
+                  className="w-full mb-2 rounded bg-black border border-white/20 p-2 text-sm"
+                >
+                  <option value="">All Categories</option>
+                  {categories.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  value={brandFilter}
+                  onChange={(e) => setBrandFilter(e.target.value)}
+                  className="w-full rounded bg-black border border-white/20 p-2 text-sm"
+                >
+                  <option value="">All Brands</option>
+                  {brandOptions.map((b) => (
+                    <option key={b} value={b}>
+                      {b}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {/* Suggestions Dropdown */}
+            {searchQuery && suggestions.length > 0 && (
+              <div className="absolute mt-2 w-full bg-black border border-white/20 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto">
+                {suggestions.slice(0, 5).map((p) => (
+                  <div
+                    key={p.id}
+                    className="flex items-center p-2 hover:bg-white/10 cursor-pointer"
+                    onClick={() => {
+                      router.push(`/product/${p.id}`);
+                      setSearchQuery("");
+                    }}
+                  >
+                    <Image
+                      src={p.image_url}
+                      alt={p.name}
+                      width={40}
+                      height={40}
+                      className="rounded"
+                    />
+                    <div className="ml-3 flex-1">
+                      <div className="text-white">{p.name}</div>
+                      <div className="text-yellow-300 text-sm">
+                        ${p.price.toFixed(2)}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* Desktop Nav */}
-          <nav className="hidden sm:flex items-center space-x-4 text-sm sm:text-lg">
+          {/* Nav */}
+          <nav className="flex items-center space-x-8 text-lg">
             <Link href="/account" className="hover:text-yellow-400">
               My Account
             </Link>
@@ -338,41 +388,7 @@ export default function Home() {
               Cart
             </Link>
             <Link href="/order-history" className="hover:text-yellow-400">
-              Orders
-            </Link>
-            <button
-              onClick={handleLogout}
-              className="bg-yellow-300 hover:bg-yellow-400 text-black px-3 py-1 rounded-md font-medium text-sm sm:text-base"
-            >
-              Logout
-            </button>
-          </nav>
-        </div>
-
-        {/* Mobile Menu */}
-        {showMobileMenu && (
-          <div className="sm:hidden absolute top-full left-0 w-full bg-black/95 backdrop-blur-md border-t border-white/20 z-40 flex flex-col space-y-4 p-4">
-            <input
-              type="text"
-              placeholder="Search products…"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-3 py-2 rounded-full bg-white/20 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-yellow-400"
-            />
-            <Link href="/account" className="hover:text-yellow-400 text-white">
-              My Account
-            </Link>
-            <Link href="/wishlist" className="hover:text-yellow-400 text-white">
-              Wishlist
-            </Link>
-            <Link href="/cart" className="hover:text-yellow-400 text-white">
-              Cart
-            </Link>
-            <Link
-              href="/order-history"
-              className="hover:text-yellow-400 text-white"
-            >
-              Orders
+              Order History
             </Link>
             <button
               onClick={handleLogout}
@@ -380,13 +396,12 @@ export default function Home() {
             >
               Logout
             </button>
-          </div>
-        )}
+          </nav>
+        </div>
       </motion.header>
 
-      {/* Main Content */}
       <main className="pt-32">
-        {/* Hero Section */}
+        {/* — Hero Section */}
         <section
           className="relative h-[500px] bg-cover bg-center"
           style={{ backgroundImage: `url('/vape_back.png')` }}
@@ -394,11 +409,12 @@ export default function Home() {
           <div className="absolute inset-0 bg-black/50" />
           <div className="relative z-10 flex flex-col items-center justify-center h-full text-center px-6">
             <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
-              Discover Your Next Favorite Vape
+            Discover Your Next Favorite Vape
             </h1>
+
             <p className="text-lg text-gray-200 max-w-2xl mb-6">
-              Premium vape products, stylish designs, and smooth flavors – all in
-              one place.
+              Premium vape products, stylish designs, and smooth flavors – all
+              in one place.
             </p>
             <Link href="#shop">
               <button className="bg-yellow-300 hover:bg-yellow-400 text-black px-6 py-3 rounded-full">
@@ -408,12 +424,12 @@ export default function Home() {
           </div>
         </section>
 
-        {/* BrandPromise Section */}
+        {/* — BrandPromise (full width) */}
         <section className="w-full py-0 bg-gray-900">
           <BrandPromise />
         </section>
 
-        {/* Shop by Category */}
+        {/* — Shop by Category */}
         <section id="shop" className="py-16">
           <h2 className="text-3xl sm:text-4xl font-semibold text-center text-yellow-300 mb-10">
             Shop by Category
@@ -442,7 +458,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Collection */}
+        {/* — Our Collection */}
         <section id="products" className="py-16">
           <h2 className="text-3xl sm:text-4xl font-semibold text-center text-yellow-300 mb-10">
             Our Collection
