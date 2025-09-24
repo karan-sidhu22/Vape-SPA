@@ -70,7 +70,7 @@ export default function Landing() {
           transition={{ duration: 0.6 }}
           className="text-center space-y-4 p-6 bg-white/10 backdrop-blur-md border border-white/20 rounded-lg shadow-lg"
         >
-          <h2 className="text-3xl font-bold">Are you 19 or older?</h2>
+          <h2 className="text-3xl font-bold">Are you 18 or older?</h2>
           <p>You must be of legal age to view this site.</p>
           <motion.button
             whileHover={{ scale: 1.05 }}
