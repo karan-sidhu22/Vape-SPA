@@ -36,6 +36,7 @@ function FadeInOnScroll({ children }) {
       { threshold: 0.1 }
     );
 
+    // ✅ ensure visible if already in viewport at load
     if (ref.current.getBoundingClientRect().top < window.innerHeight) {
       setVisible(true);
     } else {
@@ -181,7 +182,6 @@ export default function Home() {
     setCartMap((m) => ({ ...m, [pid]: now + 1 }));
     setProcessingId(null);
   };
-
   const updateCartQty = async (pid, delta) => {
     const prod = products.find((p) => p.id === pid);
     const now = cartMap[pid] || 0;
@@ -222,7 +222,6 @@ export default function Home() {
     setWishlistSet((s) => new Set(s).add(pid));
     setProcessingId(null);
   };
-
   const removeFromWishlist = async (pid) => {
     setProcessingId(pid);
     await supabase
@@ -241,7 +240,6 @@ export default function Home() {
   const brandOptions = Array.from(
     new Set(products.map((p) => p.brand).filter(Boolean))
   );
-
   const suggestions = products
     .filter((p) => p.name.toLowerCase().includes(searchQuery.toLowerCase()))
     .filter((p) => (categoryFilter ? p.category_id === categoryFilter : true))
@@ -253,20 +251,6 @@ export default function Home() {
       if (sortBy === "nameDesc") return b.name.localeCompare(a.name);
       return 0;
     });
-
-  // — handle search submit
-  const handleSearch = () => {
-    if (!searchQuery) return;
-    const firstMatch = suggestions[0];
-    if (firstMatch) {
-      router.push(`/product/${firstMatch.id}`);
-      setSearchQuery("");
-    }
-  };
-
-  const handleKeyPress = (e) => {
-    if (e.key === "Enter") handleSearch();
-  };
 
   if (!user || loading) {
     return (
@@ -304,16 +288,12 @@ export default function Home() {
 
           {/* Search + Filters */}
           <div className="relative flex-1 max-w-lg mx-4">
-            <MagnifyingGlassIcon
-              onClick={handleSearch}
-              className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white/60 cursor-pointer"
-            />
+            <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white/60" />
             <input
               type="text"
               placeholder="Search products…"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={handleKeyPress}
               className="w-full pl-10 pr-10 py-2 rounded-full bg-white/20 border border-white/30 placeholder-white/60 text-white text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
             />
             <EllipsisVerticalIcon
@@ -420,9 +400,8 @@ export default function Home() {
         </div>
       </motion.header>
 
-      {/* ——— Main Content ——— */}
       <main className="pt-32">
-        {/* Hero Section */}
+        {/* — Hero Section */}
         <section
           className="relative h-[500px] bg-cover bg-center"
           style={{ backgroundImage: `url('/vape_back.png')` }}
@@ -430,8 +409,9 @@ export default function Home() {
           <div className="absolute inset-0 bg-black/50" />
           <div className="relative z-10 flex flex-col items-center justify-center h-full text-center px-6">
             <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
-              Discover Your Next Favorite Vape
+            Discover Your Next Favorite Vape
             </h1>
+
             <p className="text-lg text-gray-200 max-w-2xl mb-6">
               Premium vape products, stylish designs, and smooth flavors – all
               in one place.
@@ -444,12 +424,12 @@ export default function Home() {
           </div>
         </section>
 
-        {/* BrandPromise Section */}
+        {/* — BrandPromise (full width) */}
         <section className="w-full py-0 bg-gray-900">
           <BrandPromise />
         </section>
 
-        {/* Shop by Category */}
+        {/* — Shop by Category */}
         <section id="shop" className="py-16">
           <h2 className="text-3xl sm:text-4xl font-semibold text-center text-yellow-300 mb-10">
             Shop by Category
@@ -478,7 +458,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Our Collection */}
+        {/* — Our Collection */}
         <section id="products" className="py-16">
           <h2 className="text-3xl sm:text-4xl font-semibold text-center text-yellow-300 mb-10">
             Our Collection
