@@ -18,7 +18,7 @@ import { motion } from "framer-motion";
 import BrandPromise from "app/components/BrandPromise";
 import SiteFooter from "app/components/SiteFooter";
 
-// FadeInOnScroll — wraps children and fades them in when scrolled into view
+// FadeInOnScroll helper
 function FadeInOnScroll({ children }) {
   const ref = useRef(null);
   const [visible, setVisible] = useState(false);
@@ -36,7 +36,6 @@ function FadeInOnScroll({ children }) {
       { threshold: 0.1 }
     );
 
-    // ✅ ensure visible if already in viewport at load
     if (ref.current.getBoundingClientRect().top < window.innerHeight) {
       setVisible(true);
     } else {
@@ -61,29 +60,30 @@ function FadeInOnScroll({ children }) {
 export default function Home() {
   const router = useRouter();
 
-  // — auth & loading
+  // Auth & user state
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // — data
+  // Data
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
 
-  // — cart & wishlist
+  // Cart & Wishlist
   const [cartId, setCartId] = useState(null);
   const [cartMap, setCartMap] = useState({});
   const [wishlistId, setWishlistId] = useState(null);
   const [wishlistSet, setWishlistSet] = useState(new Set());
   const [processingId, setProcessingId] = useState(null);
 
-  // — UI state
+  // UI state
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("");
   const [brandFilter, setBrandFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [showFilterMenu, setShowFilterMenu] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
-  // — session check
+  // Session check
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       if (!data.session) {
@@ -102,7 +102,7 @@ export default function Home() {
     return () => sub?.subscription.unsubscribe();
   }, [router]);
 
-  // — fetch products & categories
+  // Fetch products & categories
   useEffect(() => {
     (async () => {
       const [pRes, cRes] = await Promise.all([
@@ -115,7 +115,7 @@ export default function Home() {
     })();
   }, []);
 
-  // — fetch cart & wishlist
+  // Fetch cart & wishlist
   useEffect(() => {
     if (!user) return;
     (async () => {
@@ -152,13 +152,13 @@ export default function Home() {
     })();
   }, [user]);
 
-  // — logout
+  // Logout
   const handleLogout = async () => {
     await supabase.auth.signOut();
     router.replace("/");
   };
 
-  // — cart ops
+  // Cart ops
   const addToCart = async (pid) => {
     setProcessingId(pid);
     const prod = products.find((p) => p.id === pid);
@@ -182,6 +182,7 @@ export default function Home() {
     setCartMap((m) => ({ ...m, [pid]: now + 1 }));
     setProcessingId(null);
   };
+
   const updateCartQty = async (pid, delta) => {
     const prod = products.find((p) => p.id === pid);
     const now = cartMap[pid] || 0;
@@ -205,7 +206,7 @@ export default function Home() {
     }
   };
 
-  // — wishlist ops
+  // Wishlist ops
   const addToWishlist = async (pid) => {
     setProcessingId(pid);
     if (!wishlistId) {
@@ -236,7 +237,7 @@ export default function Home() {
     setProcessingId(null);
   };
 
-  // — dropdown logic
+  // Filters
   const brandOptions = Array.from(
     new Set(products.map((p) => p.brand).filter(Boolean))
   );
@@ -262,33 +263,25 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-900 text-white">
-      {/* ——— Animated Header ——— */}
+      {/* HEADER */}
       <motion.header
-        initial={{ opacity: 0, y: -50, scale: 0.95 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{
-          duration: 0.9,
-          ease: [0.25, 0.1, 0.25, 1],
-          type: "spring",
-          stiffness: 80,
-          damping: 15,
-        }}
-        whileHover={{
-          scale: 1.02,
-          boxShadow: "0px 8px 30px rgba(255, 221, 87, 0.25)",
-        }}
+        initial={{ opacity: 0, y: -50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
         className="fixed inset-x-0 top-4 z-50 px-4"
       >
-        <div className="mx-auto w-full max-w-[1600px] bg-black/60 backdrop-blur-lg border border-white/20 rounded-3xl flex items-center justify-between px-8 py-4 shadow-2xl">
+        <div className="mx-auto w-full max-w-[1600px] bg-black/60 backdrop-blur-lg border border-white/20 rounded-3xl flex items-center justify-between px-6 py-3 shadow-2xl">
           {/* Logo */}
           <div className="flex items-center space-x-3">
-            <Image src="/Logo.png" width={60} height={60} alt="Vape Vault" />
-            <h1 className="text-2xl font-bold text-yellow-300">Vape Vault</h1>
+            <Image src="/Logo.png" width={50} height={50} alt="Vape Vault" />
+            <h1 className="text-xl sm:text-2xl font-bold text-yellow-300">
+              Vape Vault
+            </h1>
           </div>
 
-          {/* Search + Filters */}
-          <div className="relative flex-1 max-w-lg mx-4">
-            <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white/60" />
+          {/* SEARCH - desktop */}
+          <div className="hidden md:block relative flex-1 max-w-lg mx-6">
+            <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/60" />
             <input
               type="text"
               placeholder="Search products…"
@@ -298,54 +291,9 @@ export default function Home() {
             />
             <EllipsisVerticalIcon
               onClick={() => setShowFilterMenu((v) => !v)}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white cursor-pointer"
+              className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white cursor-pointer"
             />
-
-            {/* Filter Menu */}
-            {showFilterMenu && (
-              <div className="absolute right-0 mt-2 w-64 bg-black text-white border border-white/30 rounded-xl p-4 z-60 shadow-xl">
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="w-full mb-2 rounded bg-black border border-white/20 p-2 text-sm"
-                >
-                  <option value="">Sort by…</option>
-                  <option value="priceAsc">Price: Low → High</option>
-                  <option value="priceDesc">Price: High → Low</option>
-                  <option value="nameAsc">Name: A → Z</option>
-                  <option value="nameDesc">Name: Z → A</option>
-                </select>
-                <select
-                  value={categoryFilter}
-                  onChange={(e) => {
-                    setCategoryFilter(e.target.value);
-                    setBrandFilter("");
-                  }}
-                  className="w-full mb-2 rounded bg-black border border-white/20 p-2 text-sm"
-                >
-                  <option value="">All Categories</option>
-                  {categories.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
-                    </option>
-                  ))}
-                </select>
-                <select
-                  value={brandFilter}
-                  onChange={(e) => setBrandFilter(e.target.value)}
-                  className="w-full rounded bg-black border border-white/20 p-2 text-sm"
-                >
-                  <option value="">All Brands</option>
-                  {brandOptions.map((b) => (
-                    <option key={b} value={b}>
-                      {b}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-
-            {/* Suggestions Dropdown */}
+            {/* Suggestions */}
             {searchQuery && suggestions.length > 0 && (
               <div className="absolute mt-2 w-full bg-black border border-white/20 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto">
                 {suggestions.slice(0, 5).map((p) => (
@@ -376,8 +324,8 @@ export default function Home() {
             )}
           </div>
 
-          {/* Nav */}
-          <nav className="flex items-center space-x-8 text-lg">
+          {/* Nav - desktop */}
+          <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
             <Link href="/account" className="hover:text-yellow-400">
               My Account
             </Link>
@@ -388,30 +336,83 @@ export default function Home() {
               Cart
             </Link>
             <Link href="/order-history" className="hover:text-yellow-400">
-              Order History
+              Orders
             </Link>
             <button
               onClick={handleLogout}
-              className="bg-yellow-300 hover:bg-yellow-400 text-black px-4 py-2 rounded-md font-medium"
+              className="bg-yellow-300 hover:bg-yellow-400 text-black px-4 py-2 rounded-md"
             >
               Logout
             </button>
           </nav>
+
+          {/* Hamburger - mobile */}
+          <div className="md:hidden">
+            <button
+              onClick={() => setMobileOpen(!mobileOpen)}
+              className="text-white"
+            >
+              <svg
+                className="w-7 h-7"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              </svg>
+            </button>
+          </div>
         </div>
+
+        {/* Mobile dropdown */}
+        {mobileOpen && (
+          <div className="md:hidden mt-2 mx-auto w-[95%] bg-black/90 border border-white/20 rounded-xl p-4 space-y-3 text-center shadow-xl">
+            <input
+              type="text"
+              placeholder="Search…"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full px-3 py-2 rounded-md bg-white/20 border border-white/30 placeholder-white/60 text-white text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
+            />
+            <Link href="/account" className="block text-yellow-400">
+              My Account
+            </Link>
+            <Link href="/wishlist" className="block text-yellow-400">
+              Wishlist
+            </Link>
+            <Link href="/cart" className="block text-yellow-400">
+              Cart
+            </Link>
+            <Link href="/order-history" className="block text-yellow-400">
+              Orders
+            </Link>
+            <button
+              onClick={handleLogout}
+              className="bg-yellow-300 hover:bg-yellow-400 text-black px-4 py-2 rounded-md w-full"
+            >
+              Logout
+            </button>
+          </div>
+        )}
       </motion.header>
 
+      {/* MAIN */}
       <main className="pt-32">
-        {/* — Hero Section */}
+        {/* Hero */}
         <section
           className="relative h-[500px] bg-cover bg-center"
           style={{ backgroundImage: `url('/vape_back.png')` }}
         >
           <div className="absolute inset-0 bg-black/50" />
           <div className="relative z-10 flex flex-col items-center justify-center h-full text-center px-6">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
+            <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
               Discover Your Next Favorite Vape
             </h1>
-
             <p className="text-lg text-gray-200 max-w-2xl mb-6">
               Premium vape products, stylish designs, and smooth flavors – all
               in one place.
@@ -424,17 +425,16 @@ export default function Home() {
           </div>
         </section>
 
-        {/* — BrandPromise (full width) */}
+        {/* Brand Promise */}
         <section className="w-full py-0 bg-gray-900">
           <BrandPromise />
         </section>
 
-        {/* — Shop by Category */}
+        {/* Shop by Category */}
         <section id="shop" className="py-16">
           <h2 className="text-3xl sm:text-4xl font-semibold text-center text-yellow-300 mb-10">
             Shop by Category
           </h2>
-          {/* MOBILE DEFAULT: 3 COLUMNS */}
           <div className="px-6 grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-8">
             {categories.map((cat) => (
               <FadeInOnScroll key={cat.id}>
@@ -459,13 +459,12 @@ export default function Home() {
           </div>
         </section>
 
-        {/* — Our Collection */}
+        {/* Products */}
         <section id="products" className="py-16">
           <h2 className="text-3xl sm:text-4xl font-semibold text-center text-yellow-300 mb-10">
             Our Collection
           </h2>
-          {/* MOBILE DEFAULT: 3 COLUMNS */}
-          <div className="px-6 grid grid-cols-3 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-10">
+          <div className="px-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-10">
             {products.map((p, idx) => (
               <FadeInOnScroll key={p.id}>
                 <div
