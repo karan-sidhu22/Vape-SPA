@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import BrandPromise from "app/components/BrandPromise";
 import SiteFooter from "./components/SiteFooter";
-import { motion } from "framer-motion"; // ✅ Framer Motion
+import { motion } from "framer-motion";
 
 const products = [
   {
@@ -42,6 +42,7 @@ export default function Landing() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [ageVerified, setAgeVerified] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -103,32 +104,29 @@ export default function Landing() {
         initial={{ y: -80, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6 }}
-        className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 bg-white/10 backdrop-blur-lg border border-white/20 px-8 py-4 shadow-2xl rounded-2xl w-[92%] max-w-6xl"
+        className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-white/10 backdrop-blur-lg border border-white/20 px-4 sm:px-6 py-3 shadow-2xl rounded-2xl w-[92%] max-w-6xl"
       >
-        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-          <div className="flex items-center space-x-4 w-full md:w-auto">
-            <Link href="/" className="flex items-center space-x-3">
-              <Image
-                src="/Logo.png"
-                alt="Vape Vault Logo"
-                width={60}
-                height={60}
-              />
-              <h1 className="text-3xl font-bold text-yellow-300">Vape Vault</h1>
-            </Link>
-          </div>
+        <div className="flex items-center justify-between">
+          {/* Logo */}
+          <Link href="/" className="flex items-center space-x-2 sm:space-x-3">
+            <Image
+              src="/Logo.png"
+              alt="Vape Vault Logo"
+              width={45}
+              height={45}
+              className="sm:w-[60px] sm:h-[60px]"
+            />
+            <h1 className="text-2xl sm:text-3xl font-bold text-yellow-300">
+              Vape Vault
+            </h1>
+          </Link>
 
-          <nav className="space-x-6 text-lg flex items-center justify-center md:justify-end w-full md:w-auto">
-            <Link
-              href="/signin"
-              className="text-yellow-400 hover:text-yellow-300"
-            >
+          {/* Desktop Nav */}
+          <nav className="hidden md:flex space-x-6 text-lg">
+            <Link href="/signin" className="text-yellow-400 hover:text-yellow-300">
               Sign In
             </Link>
-            <Link
-              href="/signup"
-              className="text-yellow-400 hover:text-yellow-300"
-            >
+            <Link href="/signup" className="text-yellow-400 hover:text-yellow-300">
               Sign Up
             </Link>
             <Link href="#products" className="text-white hover:text-gray-300">
@@ -141,7 +139,50 @@ export default function Landing() {
               Contact
             </Link>
           </nav>
+
+          {/* Mobile Hamburger */}
+          <div className="md:hidden">
+            <button
+              onClick={() => setMobileOpen(!mobileOpen)}
+              className="text-white focus:outline-none"
+            >
+              <svg
+                className="w-7 h-7"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              </svg>
+            </button>
+          </div>
         </div>
+
+        {/* Mobile Menu */}
+        {mobileOpen && (
+          <div className="md:hidden mt-3 space-y-3 bg-black/80 border border-white/20 rounded-xl p-4 text-center">
+            <Link href="/signin" className="block text-yellow-400 hover:text-yellow-300">
+              Sign In
+            </Link>
+            <Link href="/signup" className="block text-yellow-400 hover:text-yellow-300">
+              Sign Up
+            </Link>
+            <Link href="#products" className="block text-white hover:text-gray-300">
+              Products
+            </Link>
+            <Link href="#about" className="block text-white hover:text-gray-300">
+              About
+            </Link>
+            <Link href="#contact" className="block text-white hover:text-gray-300">
+              Contact
+            </Link>
+          </div>
+        )}
       </motion.header>
 
       {/* Hero */}
@@ -157,10 +198,10 @@ export default function Landing() {
           transition={{ duration: 0.8 }}
           className="relative z-10 mx-auto max-w-4xl p-8 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 shadow-lg"
         >
-          <h2 className="text-5xl font-bold mb-6 text-white drop-shadow-lg">
+          <h2 className="text-4xl sm:text-5xl font-bold mb-6 text-white drop-shadow-lg">
             Discover Your Next Favorite Vape
           </h2>
-          <p className="text-xl text-white max-w-2xl mx-auto mb-8">
+          <p className="text-lg sm:text-xl text-white max-w-2xl mx-auto mb-8">
             Premium vape products, stylish designs, and smooth flavors – all in
             one place.
           </p>
@@ -179,7 +220,6 @@ export default function Landing() {
         </motion.div>
       </main>
 
-      {/* Divider */}
       <div className="border-t border-white/10 w-full" />
 
       {/* Brand Promise */}
@@ -194,7 +234,6 @@ export default function Landing() {
         <BrandPromise />
       </motion.section>
 
-      {/* Divider */}
       <div className="border-t border-white/10 w-full" />
 
       {/* Products */}
@@ -269,8 +308,7 @@ export default function Landing() {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() =>
-                      router.push(`/signin?redirect=/product/${product.id}`)
-                    }
+                      router.push(`/signin?redirect=/product/${product.id}`)}
                     className="mt-auto w-full bg-yellow-300 hover:bg-yellow-400 text-black py-3 rounded-lg font-medium transition"
                   >
                     View Details
@@ -282,7 +320,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Divider */}
       <div className="border-t border-white/10 w-full" />
 
       {/* About */}
@@ -304,7 +341,6 @@ export default function Landing() {
         </p>
       </motion.section>
 
-      {/* Divider */}
       <div className="border-t border-white/10 w-full" />
 
       {/* Contact / Footer */}
