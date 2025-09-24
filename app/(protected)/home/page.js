@@ -409,7 +409,7 @@ export default function Home() {
           <div className="absolute inset-0 bg-black/50" />
           <div className="relative z-10 flex flex-col items-center justify-center h-full text-center px-6">
             <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
-            Discover Your Next Favorite Vape
+              Discover Your Next Favorite Vape
             </h1>
 
             <p className="text-lg text-gray-200 max-w-2xl mb-6">
@@ -434,7 +434,8 @@ export default function Home() {
           <h2 className="text-3xl sm:text-4xl font-semibold text-center text-yellow-300 mb-10">
             Shop by Category
           </h2>
-          <div className="px-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-8">
+          {/* MOBILE DEFAULT: 3 COLUMNS */}
+          <div className="px-6 grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-8">
             {categories.map((cat) => (
               <FadeInOnScroll key={cat.id}>
                 <div
@@ -463,7 +464,8 @@ export default function Home() {
           <h2 className="text-3xl sm:text-4xl font-semibold text-center text-yellow-300 mb-10">
             Our Collection
           </h2>
-          <div className="px-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10">
+          {/* MOBILE DEFAULT: 3 COLUMNS */}
+          <div className="px-6 grid grid-cols-3 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-10">
             {products.map((p, idx) => (
               <FadeInOnScroll key={p.id}>
                 <div
