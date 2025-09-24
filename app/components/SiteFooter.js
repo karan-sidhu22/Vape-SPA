@@ -117,7 +117,7 @@ export default function SiteFooter() {
       <div className="border-t border-white/10">
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-4 md:py-6 text-center">
           <p className="text-xs md:text-sm text-white/80 tracking-wide">
-            © {new Date().getFullYear()} YourCompany. All rights reserved.
+            © {new Date().getFullYear()} Vape-SPA. All rights reserved.
           </p>
         </div>
       </div>
