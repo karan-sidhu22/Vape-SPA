@@ -12,6 +12,7 @@ import {
   MinusIcon,
   MagnifyingGlassIcon,
   EllipsisVerticalIcon,
+  XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolid } from "@heroicons/react/24/solid";
 import { motion } from "framer-motion";
@@ -82,6 +83,7 @@ export default function Home() {
   const [categoryFilter, setCategoryFilter] = useState("");
   const [showFilterMenu, setShowFilterMenu] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [showMobileSearch, setShowMobileSearch] = useState(false);
 
   // Session check
   useEffect(() => {
@@ -279,7 +281,7 @@ export default function Home() {
             </h1>
           </div>
 
-          {/* SEARCH - desktop */}
+          {/* SEARCH - desktop only */}
           <div className="hidden md:block relative flex-1 max-w-lg mx-6">
             <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/60" />
             <input
@@ -287,6 +289,12 @@ export default function Home() {
               placeholder="Search products…"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && suggestions.length > 0) {
+                  router.push(`/product/${suggestions[0].id}`);
+                  setSearchQuery("");
+                }
+              }}
               className="w-full pl-10 pr-10 py-2 rounded-full bg-white/20 border border-white/30 placeholder-white/60 text-white text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
             />
             <EllipsisVerticalIcon
@@ -346,12 +354,14 @@ export default function Home() {
             </button>
           </nav>
 
-          {/* Hamburger - mobile */}
-          <div className="md:hidden">
-            <button
-              onClick={() => setMobileOpen(!mobileOpen)}
-              className="text-white"
-            >
+          {/* Mobile icons */}
+          <div className="md:hidden flex items-center space-x-4">
+            {/* Mobile search trigger */}
+            <button onClick={() => setShowMobileSearch(true)}>
+              <MagnifyingGlassIcon className="h-6 w-6 text-white" />
+            </button>
+            {/* Hamburger */}
+            <button onClick={() => setMobileOpen(!mobileOpen)} className="text-white">
               <svg
                 className="w-7 h-7"
                 fill="none"
@@ -369,16 +379,9 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Mobile dropdown */}
+        {/* Mobile dropdown menu */}
         {mobileOpen && (
           <div className="md:hidden mt-2 mx-auto w-[95%] bg-black/90 border border-white/20 rounded-xl p-4 space-y-3 text-center shadow-xl">
-            <input
-              type="text"
-              placeholder="Search…"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-3 py-2 rounded-md bg-white/20 border border-white/30 placeholder-white/60 text-white text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
-            />
             <Link href="/account" className="block text-yellow-400">
               My Account
             </Link>
@@ -400,6 +403,64 @@ export default function Home() {
           </div>
         )}
       </motion.header>
+
+      {/* Mobile Search Overlay */}
+      {showMobileSearch && (
+        <div className="fixed inset-0 bg-black/95 z-[999] flex flex-col p-6">
+          <div className="flex items-center mb-6">
+            <MagnifyingGlassIcon className="h-6 w-6 text-white mr-2" />
+            <input
+              type="text"
+              placeholder="Search products…"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && suggestions.length > 0) {
+                  router.push(`/product/${suggestions[0].id}`);
+                  setSearchQuery("");
+                  setShowMobileSearch(false);
+                }
+              }}
+              className="flex-1 bg-transparent border-b border-white/30 text-white placeholder-white/50 px-2 py-1 focus:outline-none"
+            />
+            <button onClick={() => setShowMobileSearch(false)}>
+              <XMarkIcon className="h-7 w-7 text-white ml-3" />
+            </button>
+          </div>
+
+          <div className="flex-1 overflow-y-auto space-y-2">
+            {suggestions.length > 0 ? (
+              suggestions.map((p) => (
+                <div
+                  key={p.id}
+                  className="flex items-center p-2 rounded hover:bg-white/10 cursor-pointer"
+                  onClick={() => {
+                    router.push(`/product/${p.id}`);
+                    setSearchQuery("");
+                    setShowMobileSearch(false);
+                  }}
+                >
+                  <Image
+                    src={p.image_url}
+                    alt={p.name}
+                    width={50}
+                    height={50}
+                    className="rounded"
+                  />
+                  <div className="ml-3 flex-1">
+                    <div className="text-white font-medium">{p.name}</div>
+                    <div className="text-yellow-300 text-sm">
+                      ${p.price.toFixed(2)}
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-white/50 text-center mt-10">No results found</p>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* MAIN */}
       <main className="pt-32">
