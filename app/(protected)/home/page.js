@@ -377,7 +377,7 @@ export default function Home() {
           <div className="flex items-center gap-3 cursor-pointer select-none" onClick={() => router.push("/")}>
             <Image src="/Logo.png" alt="Vape Vault" width={60} height={60} />
             <div>
-              <h1 className="text-2xl font-bold text-yellow-300 leading-none">Vape Vault</h1>
+              <h1 className="text-2xl font-bold text-yellow-300 leading-none">Vape-SPA</h1>
               <span className="text-xs text-white/70 -mt-1 block" />
             </div>
           </div>
