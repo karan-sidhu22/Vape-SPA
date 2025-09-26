@@ -1,7 +1,7 @@
 // app/(protected)/home/page.js
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -17,9 +17,9 @@ import {
 } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolid } from "@heroicons/react/24/solid";
 import { motion } from "framer-motion";
-import SiteFooterStatic from "app/components/SiteFooter"; // fallback direct import just in case
+import SiteFooterStatic from "app/components/SiteFooter"; // fallback import
 
-// Lazy-load BrandPromise and SiteFooter for faster initial paint
+// Lazy-load BrandPromise and SiteFooter for initial paint/perf
 const BrandPromise = dynamic(() => import("app/components/BrandPromise"), {
   ssr: false,
   loading: () => <div className="h-28" />,
@@ -32,14 +32,15 @@ const SiteFooter = dynamic(
   { ssr: false, loading: () => <div className="h-28" /> }
 );
 
-// FadeInOnScroll — wraps children and fades them in when scrolled into view
+/* -------------------------------------------------------------------------- */
+/* FadeInOnScroll — simple hook + motion wrapper to animate when visible       */
+/* -------------------------------------------------------------------------- */
 function FadeInOnScroll({ children }) {
   const ref = useRef(null);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     if (!ref.current) return;
-
     const obs = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -50,15 +51,13 @@ function FadeInOnScroll({ children }) {
       { threshold: 0.12 }
     );
 
-    // ensure visible if already in viewport at load
     try {
       if (ref.current.getBoundingClientRect().top < window.innerHeight) {
         setVisible(true);
       } else {
         obs.observe(ref.current);
       }
-    } catch (e) {
-      // ignore in non-browser envs
+    } catch {
       obs.observe(ref.current);
     }
 
@@ -77,25 +76,28 @@ function FadeInOnScroll({ children }) {
   );
 }
 
+/* -------------------------------------------------------------------------- */
+/* Main page component                                                         */
+/* -------------------------------------------------------------------------- */
 export default function Home() {
   const router = useRouter();
 
-  // — auth & loading
+  // auth & loading
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // — data
+  // data
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
 
-  // — cart & wishlist
+  // cart & wishlist
   const [cartId, setCartId] = useState(null);
   const [cartMap, setCartMap] = useState({});
   const [wishlistId, setWishlistId] = useState(null);
   const [wishlistSet, setWishlistSet] = useState(new Set());
   const [processingId, setProcessingId] = useState(null);
 
-  // — UI state
+  // UI
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("");
   const [brandFilter, setBrandFilter] = useState("");
@@ -104,7 +106,7 @@ export default function Home() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
 
-  // Session check & auth listener
+  // session check and auth listener
   useEffect(() => {
     let mounted = true;
     supabase.auth.getSession().then(({ data }) => {
@@ -125,12 +127,12 @@ export default function Home() {
     return () => {
       mounted = false;
       try {
-        sub?.subscription?.unsubscribe();
-      } catch (e) {}
+        sub?.subscription.unsubscribe?.();
+      } catch {}
     };
   }, [router]);
 
-  // Fetch products & categories (initial)
+  // fetch products & categories
   useEffect(() => {
     (async () => {
       try {
@@ -148,7 +150,7 @@ export default function Home() {
     })();
   }, []);
 
-  // Fetch cart & wishlist for logged-in user
+  // fetch cart & wishlist for user
   useEffect(() => {
     if (!user) return;
     (async () => {
@@ -193,13 +195,14 @@ export default function Home() {
     })();
   }, [user]);
 
-  // — logout
+  /* -------------------------------------------------------------------------- */
+  /* actions: logout, cart, wishlist                                            */
+  /* -------------------------------------------------------------------------- */
   const handleLogout = async () => {
     await supabase.auth.signOut();
     router.replace("/");
   };
 
-  // — cart ops
   const addToCart = async (pid) => {
     setProcessingId(pid);
     const prod = products.find((p) => p.id === pid);
@@ -217,7 +220,6 @@ export default function Home() {
           .select("id")
           .single();
         setCartId(nc.id);
-        // insert item after cart created
         await supabase.from("cart_items").insert({
           cart_id: nc.id,
           product_id: pid,
@@ -265,7 +267,6 @@ export default function Home() {
     }
   };
 
-  // — wishlist ops
   const addToWishlist = async (pid) => {
     setProcessingId(pid);
     try {
@@ -313,10 +314,13 @@ export default function Home() {
     }
   };
 
-  // — filter & suggestions logic
+  /* -------------------------------------------------------------------------- */
+  /* filters & suggestions                                                       */
+  /* -------------------------------------------------------------------------- */
   const brandOptions = Array.from(
     new Set(products.map((p) => p.brand).filter(Boolean))
   );
+
   const suggestions = products
     .filter((p) => p.name.toLowerCase().includes(searchQuery.toLowerCase()))
     .filter((p) => (categoryFilter ? p.category_id === categoryFilter : true))
@@ -329,20 +333,19 @@ export default function Home() {
       return 0;
     });
 
-  // keyboard handler used in desktop search
+  // desktop search key
   function handleDesktopSearchKey(e) {
     if (e.key === "Enter") {
       if (suggestions.length > 0) {
         router.push(`/product/${suggestions[0].id}`);
         setSearchQuery("");
       } else {
-        // fallback: maybe go to search page or just clear
         setSearchQuery("");
       }
     }
   }
 
-  // mobile search enter handler
+  // mobile search key
   function handleMobileSearchKey(e) {
     if (e.key === "Enter") {
       if (suggestions.length > 0) {
@@ -363,9 +366,12 @@ export default function Home() {
     );
   }
 
+  /* -------------------------------------------------------------------------- */
+  /* Render                                                                     */
+  /* -------------------------------------------------------------------------- */
   return (
     <div className="flex flex-col min-h-screen bg-gray-900 text-white">
-      {/* ——— Animated Header ——— */}
+      {/* ========== HEADER (desktop kept the same as your working version) ========== */}
       <motion.header
         initial={{ opacity: 0, y: -50, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -373,16 +379,21 @@ export default function Home() {
         className="fixed inset-x-0 top-4 z-50 px-4"
       >
         <div className="mx-auto w-full max-w-[1600px] bg-black/60 backdrop-blur-lg border border-white/20 rounded-3xl flex items-center justify-between px-8 py-3 shadow-2xl">
-          {/* left: logo */}
-          <div className="flex items-center gap-3 cursor-pointer select-none" onClick={() => router.push("/")}>
+          {/* Left: Logo */}
+          <div
+            className="flex items-center gap-3 cursor-pointer select-none"
+            onClick={() => router.push("/")}
+          >
             <Image src="/Logo.png" alt="Vape Vault" width={60} height={60} />
             <div>
-              <h1 className="text-2xl font-bold text-yellow-300 leading-none">Vape-SPA</h1>
+              <h1 className="text-2xl font-bold text-yellow-300 leading-none">
+                Vape Vault
+              </h1>
               <span className="text-xs text-white/70 -mt-1 block" />
             </div>
           </div>
 
-          {/* search - desktop only */}
+          {/* Desktop search (kept as before) */}
           <div className="hidden md:block relative flex-1 max-w-lg mx-4">
             <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/60" />
             <input
@@ -398,7 +409,7 @@ export default function Home() {
               className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white cursor-pointer"
             />
 
-            {/* suggestions dropdown desktop */}
+            {/* Desktop suggestions */}
             {searchQuery && suggestions.length > 0 && (
               <div className="absolute mt-2 w-full bg-black border border-white/20 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto">
                 {suggestions.slice(0, 8).map((p) => (
@@ -410,10 +421,20 @@ export default function Home() {
                       setSearchQuery("");
                     }}
                   >
-                    <Image src={p.image_url} alt={p.name} width={44} height={44} className="rounded" loading="lazy" sizes="44px" />
+                    <Image
+                      src={p.image_url}
+                      alt={p.name}
+                      width={44}
+                      height={44}
+                      className="rounded"
+                      loading="lazy"
+                      sizes="44px"
+                    />
                     <div className="ml-3 flex-1">
                       <div className="text-white text-sm">{p.name}</div>
-                      <div className="text-yellow-300 text-xs">${p.price?.toFixed(2)}</div>
+                      <div className="text-yellow-300 text-xs">
+                        ${p.price?.toFixed(2)}
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -421,41 +442,85 @@ export default function Home() {
             )}
           </div>
 
-          {/* right: nav - desktop */}
+          {/* Desktop nav (unchanged) */}
           <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
-            <Link href="/account" className="hover:text-yellow-400">My Account</Link>
-            <Link href="/wishlist" className="hover:text-yellow-400">Wishlist</Link>
-            <Link href="/cart" className="hover:text-yellow-400">Cart</Link>
-            <Link href="/order-history" className="hover:text-yellow-400">Orders</Link>
-            <button onClick={handleLogout} className="bg-yellow-300 hover:bg-yellow-400 text-black px-4 py-2 rounded-md font-medium">Logout</button>
+            <Link href="/account" className="hover:text-yellow-400">
+              My Account
+            </Link>
+            <Link href="/wishlist" className="hover:text-yellow-400">
+              Wishlist
+            </Link>
+            <Link href="/cart" className="hover:text-yellow-400">
+              Cart
+            </Link>
+            <Link href="/order-history" className="hover:text-yellow-400">
+              Orders
+            </Link>
+            <button
+              onClick={handleLogout}
+              className="bg-yellow-300 hover:bg-yellow-400 text-black px-4 py-2 rounded-md font-medium"
+            >
+              Logout
+            </button>
           </nav>
 
-          {/* mobile icons (search + hamburger) */}
+          {/* Mobile icons: search + menu */}
           <div className="md:hidden flex items-center gap-3">
-            <button onClick={() => setShowMobileSearch(true)} aria-label="Search" className="p-1">
+            <button
+              onClick={() => setShowMobileSearch(true)}
+              aria-label="Search"
+              className="p-1"
+            >
               <MagnifyingGlassIcon className="h-6 w-6 text-white" />
             </button>
-            <button onClick={() => setMobileOpen((v) => !v)} aria-label="Menu" className="p-1">
-              <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+            <button
+              onClick={() => setMobileOpen((v) => !v)}
+              aria-label="Menu"
+              className="p-1"
+            >
+              <svg
+                className="w-7 h-7 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
               </svg>
             </button>
           </div>
         </div>
 
-        {/* mobile dropdown menu (below header) */}
+        {/* Mobile menu dropdown */}
         {mobileOpen && (
           <div className="md:hidden mt-2 mx-auto w-[95%] bg-black/90 border border-white/20 rounded-xl p-4 space-y-3 text-center shadow-xl">
-            <Link href="/account" className="block text-yellow-400">My Account</Link>
-            <Link href="/wishlist" className="block text-yellow-400">Wishlist</Link>
-            <Link href="/cart" className="block text-yellow-400">Cart</Link>
-            <Link href="/order-history" className="block text-yellow-400">Orders</Link>
-            <button onClick={handleLogout} className="bg-yellow-300 hover:bg-yellow-400 text-black px-4 py-2 rounded-md w-full">Logout</button>
+            <Link href="/account" className="block text-yellow-400">
+              My Account
+            </Link>
+            <Link href="/wishlist" className="block text-yellow-400">
+              Wishlist
+            </Link>
+            <Link href="/cart" className="block text-yellow-400">
+              Cart
+            </Link>
+            <Link href="/order-history" className="block text-yellow-400">
+              Orders
+            </Link>
+            <button
+              onClick={handleLogout}
+              className="bg-yellow-300 hover:bg-yellow-400 text-black px-4 py-2 rounded-md w-full"
+            >
+              Logout
+            </button>
           </div>
         )}
       </motion.header>
 
-      {/* Mobile Search Overlay */}
+      {/* ========== Mobile Search Overlay (improved UX) ========== */}
       {showMobileSearch && (
         <div className="fixed inset-0 z-50 bg-black/95 flex flex-col p-4">
           <div className="flex items-center gap-3">
@@ -469,7 +534,13 @@ export default function Home() {
               autoFocus
               className="flex-1 bg-transparent border-b border-white/20 text-white placeholder-white/50 px-2 py-2 focus:outline-none"
             />
-            <button onClick={() => { setShowMobileSearch(false); setSearchQuery(""); }}>
+            <button
+              onClick={() => {
+                setShowMobileSearch(false);
+                setSearchQuery("");
+              }}
+              aria-label="Close search"
+            >
               <XMarkIcon className="h-7 w-7 text-white" />
             </button>
           </div>
@@ -486,10 +557,20 @@ export default function Home() {
                     setShowMobileSearch(false);
                   }}
                 >
-                  <Image src={p.image_url} alt={p.name} width={56} height={56} className="rounded" loading="lazy" sizes="56px" />
+                  <Image
+                    src={p.image_url}
+                    alt={p.name}
+                    width={56}
+                    height={56}
+                    className="rounded"
+                    loading="lazy"
+                    sizes="56px"
+                  />
                   <div className="ml-3 flex-1">
                     <div className="text-white font-medium">{p.name}</div>
-                    <div className="text-yellow-300 text-sm">${p.price?.toFixed(2)}</div>
+                    <div className="text-yellow-300 text-sm">
+                      ${p.price?.toFixed(2)}
+                    </div>
                   </div>
                 </div>
               ))
@@ -500,29 +581,43 @@ export default function Home() {
         </div>
       )}
 
-      {/* MAIN */}
+      {/* ========== MAIN ========== */}
       <main className="pt-32">
         {/* — Hero Section */}
-        <section className="relative h-[500px] bg-cover bg-center" style={{ backgroundImage: `url('/vape_back.png')` }}>
+        <section
+          className="relative h-[500px] bg-cover bg-center"
+          style={{ backgroundImage: `url('/vape_back.png')` }}
+        >
           <div className="absolute inset-0 bg-black/50" />
           <div className="relative z-10 flex flex-col items-center justify-center h-full text-center px-6">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4">Discover Your Next Favorite Vape</h1>
-            <p className="text-lg text-gray-200 max-w-2xl mb-6">Premium vape products, stylish designs, and smooth flavors – all in one place.</p>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
+              Discover Your Next Favorite Vape
+            </h1>
+
+            <p className="text-lg text-gray-200 max-w-2xl mb-6">
+              Premium vape products, stylish designs, and smooth flavors – all in
+              one place.
+            </p>
             <Link href="#shop">
-              <button className="bg-yellow-300 hover:bg-yellow-400 text-black px-6 py-3 rounded-full">Browse Categories</button>
+              <button className="bg-yellow-300 hover:bg-yellow-400 text-black px-6 py-3 rounded-full">
+                Browse Categories
+              </button>
             </Link>
           </div>
         </section>
 
-        {/* BrandPromise */}
+        {/* BrandPromise (lazy loaded) */}
         <section className="w-full py-0 bg-gray-900">
           <BrandPromise />
         </section>
 
         {/* Shop by Category */}
         <section id="shop" className="py-16">
-          <h2 className="text-3xl sm:text-4xl font-semibold text-center text-yellow-300 mb-10">Shop by Category</h2>
-          {/* MOBILE DEFAULT: 3 columns (grid-cols-3) as requested */}
+          <h2 className="text-3xl sm:text-4xl font-semibold text-center text-yellow-300 mb-10">
+            Shop by Category
+          </h2>
+
+          {/* Mobile default: 3 columns as requested */}
           <div className="px-6 grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
             {categories.map((cat) => (
               <FadeInOnScroll key={cat.id}>
@@ -540,7 +635,9 @@ export default function Home() {
                     className="object-cover group-hover:scale-105 transition-transform"
                   />
                   <div className="absolute inset-0 bg-black/40 group-hover:bg-black/60 transition-colors" />
-                  <span className="absolute bottom-4 left-4 text-white font-semibold text-lg">{cat.name}</span>
+                  <span className="absolute bottom-4 left-4 text-white font-semibold text-lg">
+                    {cat.name}
+                  </span>
                 </div>
               </FadeInOnScroll>
             ))}
@@ -549,38 +646,53 @@ export default function Home() {
 
         {/* Our Collection (Products) */}
         <section id="products" className="py-16">
-          <h2 className="text-3xl sm:text-4xl font-semibold text-center text-yellow-300 mb-10">Our Collection</h2>
+          <h2 className="text-3xl sm:text-4xl font-semibold text-center text-yellow-300 mb-10">
+            Our Collection
+          </h2>
 
-          {/* Use a container-level motion to reduce per-card animation overhead */}
+          {/* IMPORTANT: mobile = 2 columns (grid-cols-2), tablet/desktop scale up */}
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
-            className="px-6 grid grid-cols-3 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-8"
+            className="px-4 sm:px-6 grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
           >
             {products.map((p, idx) => (
               <FadeInOnScroll key={p.id}>
                 <div
                   onClick={() => router.push(`/product/${p.id}`)}
-                  className={`relative overflow-hidden rounded-2xl shadow-lg group transition-transform hover:scale-[1.03] ${idx === 0 ? "lg:col-span-2" : ""}`}
+                  className={`relative overflow-hidden rounded-2xl shadow-lg group bg-gray-800 flex flex-col`}
                 >
-                  <div className="w-full aspect-[4/3] relative bg-gray-800">
+                  {/* IMAGE: choose portrait-ish aspect on mobile so the content fits underneath */}
+                  <div className="w-full relative aspect-[3/4] sm:aspect-[4/3]">
                     <Image
                       src={p.image_url}
                       alt={p.name}
                       fill
-                      sizes="(max-width: 640px) 33vw, (max-width: 1024px) 30vw, 300px"
+                      sizes="(max-width: 640px) 46vw, (max-width: 1024px) 30vw, 300px"
                       loading="lazy"
                       className="object-cover brightness-90 group-hover:brightness-100 transition"
                     />
                   </div>
 
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 p-4 sm:p-6 flex flex-col justify-end">
-                    <h4 className="text-base sm:text-2xl font-bold text-white uppercase tracking-wide drop-shadow-lg">{p.name}</h4>
-                    <p className="mt-2 text-xs sm:text-sm text-white/80 line-clamp-2">{p.description}</p>
-                    <div className="mt-4 flex items-center justify-between">
-                      <span className="text-sm sm:text-xl font-semibold text-yellow-300">${p.price?.toFixed(2)}</span>
-                      <div className="flex items-center space-x-2">
+                  {/* CONTENT: always visible on mobile below image */}
+                  <div className="p-3 sm:p-4 flex flex-col flex-1 justify-between">
+                    <div>
+                      <h4 className="text-sm sm:text-lg font-bold text-white uppercase tracking-wide line-clamp-2">
+                        {p.name}
+                      </h4>
+                      <p className="mt-1 text-xs sm:text-sm text-white/80 line-clamp-3">
+                        {p.description}
+                      </p>
+                    </div>
+
+                    <div className="mt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                      <span className="text-base sm:text-xl font-semibold text-yellow-300">
+                        ${p.price?.toFixed(2)}
+                      </span>
+
+                      <div className="flex flex-wrap gap-2 sm:gap-3 items-center">
+                        {/* Wishlist */}
                         {wishlistSet.has(p.id) ? (
                           <button
                             onClick={(e) => {
@@ -588,6 +700,7 @@ export default function Home() {
                               removeFromWishlist(p.id);
                             }}
                             disabled={processingId === p.id}
+                            aria-label="Remove from wishlist"
                           >
                             <HeartSolid className="h-5 w-5 sm:h-6 sm:w-6 text-red-500" />
                           </button>
@@ -598,29 +711,35 @@ export default function Home() {
                               addToWishlist(p.id);
                             }}
                             disabled={processingId === p.id}
+                            aria-label="Add to wishlist"
                           >
                             <HeartOutline className="h-5 w-5 sm:h-6 sm:w-6 text-white hover:text-red-500" />
                           </button>
                         )}
 
+                        {/* Cart */}
                         {cartMap[p.id] ? (
-                          <div className="flex items-center space-x-1">
+                          <div className="flex items-center gap-1">
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
                                 updateCartQty(p.id, -1);
                               }}
                               className="bg-yellow-300 rounded-full p-1"
+                              aria-label="Decrease quantity"
                             >
                               <MinusIcon className="h-4 w-4 text-black" />
                             </button>
-                            <span className="text-white text-sm px-2">{cartMap[p.id]}</span>
+                            <span className="text-white text-sm px-2">
+                              {cartMap[p.id]}
+                            </span>
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
                                 updateCartQty(p.id, 1);
                               }}
                               className="bg-yellow-300 rounded-full p-1"
+                              aria-label="Increase quantity"
                             >
                               <PlusIcon className="h-4 w-4 text-black" />
                             </button>
