@@ -661,7 +661,8 @@ export default function Home() {
               <FadeInOnScroll key={p.id}>
                 <div
                   onClick={() => router.push(`/product/${p.id}`)}
-                  className={`relative overflow-hidden rounded-2xl shadow-lg group bg-gray-800 flex flex-col`}
+                  className="relative overflow-hidden rounded-2xl shadow-lg group bg-gray-800 flex flex-col"
+                  style={{ minHeight: "410px", maxHeight: "410px" }} // <-- Fixed height for all product boxes
                 >
                   {/* IMAGE: choose portrait-ish aspect on mobile so the content fits underneath */}
                   <div className="w-full relative aspect-[3/4] sm:aspect-[4/3]">
@@ -681,7 +682,18 @@ export default function Home() {
                       <h4 className="text-sm sm:text-lg font-bold text-white uppercase tracking-wide line-clamp-2">
                         {p.name}
                       </h4>
-                      <p className="mt-1 text-xs sm:text-sm text-white/80 line-clamp-3">
+                      <p
+                        className="mt-1 text-xs sm:text-sm text-white/80"
+                        style={{
+                          minHeight: "3.6em", // 3 lines of text height (adjust as needed)
+                          maxHeight: "3.6em",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          display: "-webkit-box",
+                          WebkitLineClamp: 3,
+                          WebkitBoxOrient: "vertical",
+                        }}
+                      >
                         {p.description}
                       </p>
                     </div>
