@@ -1,6 +1,19 @@
 // app/(protected)/home/page.js
 "use client";
 
+/**
+ * Home page for the protected area.
+ *
+ * - Keeps your original desktop header & search bar behavior.
+ * - Improves mobile UX: consistent, fixed-height cards, readable text,
+ *   2 columns on mobile for products & categories (scales up at larger sizes).
+ * - Adds the same card layout for Categories as Products so all content is readable.
+ * - Lazy-loads BrandPromise and SiteFooter for faster initial paint.
+ *
+ * NOTE: This file is intentionally verbose and commented for maintainability.
+ * It's expanded to provide a full, single-file implementation you requested.
+ */
+
 import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -82,22 +95,30 @@ function FadeInOnScroll({ children }) {
 export default function Home() {
   const router = useRouter();
 
-  // auth & loading
+  // ----------------------------
+  // Auth & loading state
+  // ----------------------------
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // data
+  // ----------------------------
+  // Data
+  // ----------------------------
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
 
-  // cart & wishlist
+  // ----------------------------
+  // Cart & Wishlist
+  // ----------------------------
   const [cartId, setCartId] = useState(null);
   const [cartMap, setCartMap] = useState({});
   const [wishlistId, setWishlistId] = useState(null);
   const [wishlistSet, setWishlistSet] = useState(new Set());
   const [processingId, setProcessingId] = useState(null);
 
-  // UI
+  // ----------------------------
+  // UI state
+  // ----------------------------
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("");
   const [brandFilter, setBrandFilter] = useState("");
@@ -106,7 +127,9 @@ export default function Home() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [showMobileSearch, setShowMobileSearch] = useState(false);
 
-  // session check and auth listener
+  // ----------------------------
+  // Session check & auth listener
+  // ----------------------------
   useEffect(() => {
     let mounted = true;
     supabase.auth.getSession().then(({ data }) => {
@@ -127,12 +150,14 @@ export default function Home() {
     return () => {
       mounted = false;
       try {
-        sub?.subscription.unsubscribe?.();
+        sub?.subscription?.unsubscribe?.();
       } catch {}
     };
   }, [router]);
 
-  // fetch products & categories
+  // ----------------------------
+  // Fetch products & categories (initial)
+  // ----------------------------
   useEffect(() => {
     (async () => {
       try {
@@ -150,7 +175,9 @@ export default function Home() {
     })();
   }, []);
 
-  // fetch cart & wishlist for user
+  // ----------------------------
+  // Fetch cart & wishlist for logged-in user
+  // ----------------------------
   useEffect(() => {
     if (!user) return;
     (async () => {
@@ -195,9 +222,9 @@ export default function Home() {
     })();
   }, [user]);
 
-  /* -------------------------------------------------------------------------- */
-  /* actions: logout, cart, wishlist                                            */
-  /* -------------------------------------------------------------------------- */
+  // ----------------------------
+  // Actions: logout, cart, wishlist
+  // ----------------------------
   const handleLogout = async () => {
     await supabase.auth.signOut();
     router.replace("/");
@@ -314,9 +341,9 @@ export default function Home() {
     }
   };
 
-  /* -------------------------------------------------------------------------- */
-  /* filters & suggestions                                                       */
-  /* -------------------------------------------------------------------------- */
+  // ----------------------------
+  // Filters & suggestions logic
+  // ----------------------------
   const brandOptions = Array.from(
     new Set(products.map((p) => p.brand).filter(Boolean))
   );
@@ -358,6 +385,9 @@ export default function Home() {
     }
   }
 
+  // ----------------------------
+  // Loading state
+  // ----------------------------
   if (!user || loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
@@ -611,173 +641,229 @@ export default function Home() {
           <BrandPromise />
         </section>
 
-        {/* Shop by Category */}
+        {/* -------------------------
+             Shop by Category
+             -------------------------
+             We changed layout to use the same professional cards as products.
+             Mobile-first: 2 columns for readability on phones, scales up.
+         */}
         <section id="shop" className="py-16">
           <h2 className="text-3xl sm:text-4xl font-semibold text-center text-yellow-300 mb-10">
             Shop by Category
           </h2>
 
-          {/* Mobile default: 3 columns as requested */}
-          <div className="px-6 grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
-            {categories.map((cat) => (
-              <FadeInOnScroll key={cat.id}>
-                <div
-                  onClick={() => router.push(`/category/${cat.id}`)}
-                  className="relative group cursor-pointer overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition"
-                  style={{ aspectRatio: "4/3" }}
-                >
-                  <Image
-                    src={cat.image_url}
-                    alt={cat.name}
-                    fill
-                    sizes="(max-width: 640px) 32vw, (max-width: 1024px) 24vw, 200px"
-                    loading="lazy"
-                    className="object-cover group-hover:scale-105 transition-transform"
-                  />
-                  <div className="absolute inset-0 bg-black/40 group-hover:bg-black/60 transition-colors" />
-                  <span className="absolute bottom-4 left-4 text-white font-semibold text-lg">
-                    {cat.name}
-                  </span>
-                </div>
-              </FadeInOnScroll>
-            ))}
+          {/* Mobile default: 2 columns for clarity, then 3/4/5 for larger breakpoints */}
+          <div className="px-4 sm:px-6 max-w-7xl mx-auto">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
+              {categories.map((cat) => (
+                <FadeInOnScroll key={cat.id}>
+                  {/* Each category is a fixed-height card so text and title are readable */}
+                  <div
+                    onClick={() => router.push(`/category/${cat.id}`)}
+                    className="relative group cursor-pointer overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition bg-gray-800"
+                    style={{ minHeight: "380px", maxHeight: "380px" }}
+                  >
+                    <div className="w-full relative aspect-[3/4]">
+                      <Image
+                        src={cat.image_url}
+                        alt={cat.name}
+                        fill
+                        sizes="(max-width: 640px) 46vw, (max-width: 1024px) 30vw, 240px"
+                        loading="lazy"
+                        className="object-cover group-hover:scale-105 transition-transform brightness-90"
+                      />
+                    </div>
+
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 p-3 flex flex-col justify-end">
+                      <h3 className="text-sm sm:text-lg font-bold text-white uppercase tracking-wide line-clamp-2">
+                        {cat.name}
+                      </h3>
+
+                      {/* If category descriptions exist use clamp so it doesn't overflow */}
+                      {cat.description ? (
+                        <p
+                          className="mt-1 text-xs sm:text-sm text-white/80"
+                          style={{
+                            minHeight: "3.3em",
+                            maxHeight: "3.3em",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            display: "-webkit-box",
+                            WebkitLineClamp: 3,
+                            WebkitBoxOrient: "vertical",
+                          }}
+                        >
+                          {cat.description}
+                        </p>
+                      ) : (
+                        <p className="mt-1 text-xs sm:text-sm text-white/80 opacity-80">
+                          Browse items in this category
+                        </p>
+                      )}
+
+                      <div className="mt-3 flex items-center justify-between">
+                        <span className="text-sm text-yellow-300 font-semibold">
+                          View
+                        </span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            router.push(`/category/${cat.id}`);
+                          }}
+                          className="bg-yellow-300 text-black px-3 py-1 rounded-full text-xs sm:text-sm font-medium hover:bg-yellow-400"
+                        >
+                          Shop
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </FadeInOnScroll>
+              ))}
+            </div>
           </div>
         </section>
 
-        {/* Our Collection (Products) */}
+        {/* -------------------------
+             Our Collection (Products)
+             -------------------------
+             Mobile-first: 2 columns for products so description + controls are visible.
+             Cards are fixed height so product tiles stay consistent on all devices.
+         */}
         <section id="products" className="py-16">
           <h2 className="text-3xl sm:text-4xl font-semibold text-center text-yellow-300 mb-10">
             Our Collection
           </h2>
 
-          {/* IMPORTANT: mobile = 2 columns (grid-cols-2), tablet/desktop scale up */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-            className="px-4 sm:px-6 grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
-          >
-            {products.map((p, idx) => (
-              <FadeInOnScroll key={p.id}>
-                <div
-                  onClick={() => router.push(`/product/${p.id}`)}
-                  className="relative overflow-hidden rounded-2xl shadow-lg group bg-gray-800 flex flex-col"
-                  style={{ minHeight: "410px", maxHeight: "410px" }} // <-- Fixed height for all product boxes
-                >
-                  {/* IMAGE: choose portrait-ish aspect on mobile so the content fits underneath */}
-                  <div className="w-full relative aspect-[3/4] sm:aspect-[4/3]">
-                    <Image
-                      src={p.image_url}
-                      alt={p.name}
-                      fill
-                      sizes="(max-width: 640px) 46vw, (max-width: 1024px) 30vw, 300px"
-                      loading="lazy"
-                      className="object-cover brightness-90 group-hover:brightness-100 transition"
-                    />
-                  </div>
-
-                  {/* CONTENT: always visible on mobile below image */}
-                  <div className="p-3 sm:p-4 flex flex-col flex-1 justify-between">
-                    <div>
-                      <h4 className="text-sm sm:text-lg font-bold text-white uppercase tracking-wide line-clamp-2">
-                        {p.name}
-                      </h4>
-                      <p
-                        className="mt-1 text-xs sm:text-sm text-white/80"
-                        style={{
-                          minHeight: "3.6em", // 3 lines of text height (adjust as needed)
-                          maxHeight: "3.6em",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          display: "-webkit-box",
-                          WebkitLineClamp: 3,
-                          WebkitBoxOrient: "vertical",
-                        }}
-                      >
-                        {p.description}
-                      </p>
+          <div className="px-4 sm:px-6 max-w-7xl mx-auto">
+            <motion.div
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+              className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+            >
+              {products.map((p, idx) => (
+                <FadeInOnScroll key={p.id}>
+                  <div
+                    onClick={() => router.push(`/product/${p.id}`)}
+                    className="relative overflow-hidden rounded-2xl shadow-lg group bg-gray-800 flex flex-col"
+                    style={{ minHeight: "420px", maxHeight: "420px" }} // consistent tile height
+                  >
+                    {/* Image: portrait-ish on mobile to leave room for details */}
+                    <div className="w-full relative aspect-[3/4] sm:aspect-[4/3]">
+                      <Image
+                        src={p.image_url}
+                        alt={p.name}
+                        fill
+                        sizes="(max-width: 640px) 46vw, (max-width: 1024px) 30vw, 320px"
+                        loading="lazy"
+                        className="object-cover brightness-90 group-hover:brightness-100 transition"
+                      />
                     </div>
 
-                    <div className="mt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                      <span className="text-base sm:text-xl font-semibold text-yellow-300">
-                        ${p.price?.toFixed(2)}
-                      </span>
+                    {/* Content */}
+                    <div className="p-3 sm:p-4 flex flex-col flex-1 justify-between">
+                      <div>
+                        <h4 className="text-sm sm:text-lg font-bold text-white uppercase tracking-wide line-clamp-2">
+                          {p.name}
+                        </h4>
+                        <p
+                          className="mt-1 text-xs sm:text-sm text-white/80"
+                          style={{
+                            minHeight: "3.6em",
+                            maxHeight: "3.6em",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            display: "-webkit-box",
+                            WebkitLineClamp: 3,
+                            WebkitBoxOrient: "vertical",
+                          }}
+                        >
+                          {p.description}
+                        </p>
+                      </div>
 
-                      <div className="flex flex-wrap gap-2 sm:gap-3 items-center">
-                        {/* Wishlist */}
-                        {wishlistSet.has(p.id) ? (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              removeFromWishlist(p.id);
-                            }}
-                            disabled={processingId === p.id}
-                            aria-label="Remove from wishlist"
-                          >
-                            <HeartSolid className="h-5 w-5 sm:h-6 sm:w-6 text-red-500" />
-                          </button>
-                        ) : (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              addToWishlist(p.id);
-                            }}
-                            disabled={processingId === p.id}
-                            aria-label="Add to wishlist"
-                          >
-                            <HeartOutline className="h-5 w-5 sm:h-6 sm:w-6 text-white hover:text-red-500" />
-                          </button>
-                        )}
+                      <div className="mt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                        <span className="text-base sm:text-xl font-semibold text-yellow-300">
+                          ${p.price?.toFixed(2)}
+                        </span>
 
-                        {/* Cart */}
-                        {cartMap[p.id] ? (
-                          <div className="flex items-center gap-1">
+                        <div className="flex flex-wrap gap-2 sm:gap-3 items-center">
+                          {/* Wishlist */}
+                          {wishlistSet.has(p.id) ? (
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                updateCartQty(p.id, -1);
+                                removeFromWishlist(p.id);
                               }}
-                              className="bg-yellow-300 rounded-full p-1"
-                              aria-label="Decrease quantity"
+                              disabled={processingId === p.id}
+                              aria-label="Remove from wishlist"
                             >
-                              <MinusIcon className="h-4 w-4 text-black" />
+                              <HeartSolid className="h-5 w-5 sm:h-6 sm:w-6 text-red-500" />
                             </button>
-                            <span className="text-white text-sm px-2">
-                              {cartMap[p.id]}
-                            </span>
+                          ) : (
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                updateCartQty(p.id, 1);
+                                addToWishlist(p.id);
                               }}
-                              className="bg-yellow-300 rounded-full p-1"
-                              aria-label="Increase quantity"
+                              disabled={processingId === p.id}
+                              aria-label="Add to wishlist"
                             >
-                              <PlusIcon className="h-4 w-4 text-black" />
+                              <HeartOutline className="h-5 w-5 sm:h-6 sm:w-6 text-white hover:text-red-500" />
                             </button>
-                          </div>
-                        ) : (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              addToCart(p.id);
-                            }}
-                            disabled={processingId === p.id}
-                            className="bg-yellow-300 text-black px-3 py-1 rounded-full text-xs sm:text-sm font-medium hover:bg-yellow-400"
-                          >
-                            Add to Cart
-                          </button>
-                        )}
+                          )}
+
+                          {/* Cart */}
+                          {cartMap[p.id] ? (
+                            <div className="flex items-center gap-1">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  updateCartQty(p.id, -1);
+                                }}
+                                className="bg-yellow-300 rounded-full p-1"
+                                aria-label="Decrease quantity"
+                              >
+                                <MinusIcon className="h-4 w-4 text-black" />
+                              </button>
+                              <span className="text-white text-sm px-2">
+                                {cartMap[p.id]}
+                              </span>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  updateCartQty(p.id, 1);
+                                }}
+                                className="bg-yellow-300 rounded-full p-1"
+                                aria-label="Increase quantity"
+                              >
+                                <PlusIcon className="h-4 w-4 text-black" />
+                              </button>
+                            </div>
+                          ) : (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                addToCart(p.id);
+                              }}
+                              disabled={processingId === p.id}
+                              className="bg-yellow-300 text-black px-3 py-1 rounded-full text-xs sm:text-sm font-medium hover:bg-yellow-400"
+                            >
+                              Add to Cart
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </FadeInOnScroll>
-            ))}
-          </motion.div>
+                </FadeInOnScroll>
+              ))}
+            </motion.div>
+          </div>
         </section>
       </main>
 
+      {/* Footer */}
       <SiteFooter />
     </div>
   );
