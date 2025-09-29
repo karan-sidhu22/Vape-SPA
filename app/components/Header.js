@@ -66,13 +66,14 @@ export default function Header() {
 
   return (
     <>
-      {/* bg effects */}
+      {/* bg effects with animated particles */}
       <div
         aria-hidden
         className="pointer-events-none fixed inset-x-0 top-0 z-40 flex justify-center"
-        style={{ height: 140 }}
+        style={{ height: 160 }}
       >
         <div className="w-[90%] max-w-7xl relative">
+          {/* gradient backdrop */}
           <div
             className="absolute inset-0 rounded-2xl blur-2xl opacity-30 -z-10"
             style={{
@@ -81,6 +82,24 @@ export default function Header() {
               animation: "bgShift 10s linear infinite",
             }}
           />
+
+          {/* animated particles */}
+          <div className="absolute inset-0 -z-10 overflow-hidden">
+            {Array.from({ length: 14 }).map((_, i) => (
+              <span
+                key={i}
+                className="particle"
+                style={{
+                  top: `${Math.random() * 100}%`,
+                  left: `${Math.random() * 100}%`,
+                  width: `${6 + Math.random() * 10}px`,
+                  height: `${6 + Math.random() * 10}px`,
+                  animationDelay: `${Math.random() * 8}s`,
+                  animationDuration: `${6 + Math.random() * 6}s`,
+                }}
+              />
+            ))}
+          </div>
         </div>
       </div>
 
@@ -108,6 +127,8 @@ export default function Header() {
                 <button
                   onClick={() => setMenuOpen(!menuOpen)}
                   className="text-white/90 hover:text-yellow-300"
+                  aria-expanded={menuOpen}
+                  aria-label="Toggle Menu"
                 >
                   {menuOpen ? <X size={26} /> : <Menu size={26} />}
                 </button>
@@ -138,6 +159,7 @@ export default function Header() {
             <motion.nav
               style={{ x: navX, y: navY }}
               className="hidden md:flex items-center gap-6"
+              role="navigation"
             >
               {navItems.map((it) => (
                 <Link
@@ -232,17 +254,17 @@ export default function Header() {
         }
         .particle {
           position: absolute;
-          width: 10px;
-          height: 10px;
           border-radius: 999px;
           background: linear-gradient(
             180deg,
-            rgba(255, 214, 102, 0.95),
-            rgba(255, 183, 3, 0.6)
+            rgba(255, 214, 102, 0.9),
+            rgba(255, 183, 3, 0.5)
           );
           filter: blur(6px);
           opacity: 0.7;
-          animation: floaty 8s ease-in-out infinite;
+          animation-name: floaty;
+          animation-timing-function: ease-in-out;
+          animation-iteration-count: infinite;
         }
         @keyframes floaty {
           0% {
@@ -250,7 +272,7 @@ export default function Header() {
             opacity: 0.6;
           }
           50% {
-            transform: translateY(-20px) translateX(14px) scale(1.1);
+            transform: translateY(-40px) translateX(20px) scale(1.2);
             opacity: 0.95;
           }
           100% {
