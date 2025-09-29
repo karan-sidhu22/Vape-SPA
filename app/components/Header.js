@@ -14,7 +14,7 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const containerRef = useRef(null);
 
-  // parallax
+  // parallax motion
   const mvX = useMotionValue(0);
   const mvY = useMotionValue(0);
   const logoX = useTransform(mvX, (v) => v / 20);
@@ -33,9 +33,17 @@ export default function Header() {
     router.push("/");
   };
 
+  // disable parallax for mobile/reduced motion
   useEffect(() => {
+    if (
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+      window.matchMedia("(pointer: coarse)").matches
+    ) {
+      return;
+    }
     const el = containerRef.current;
     if (!el) return;
+
     function onMove(e) {
       const rect = el.getBoundingClientRect();
       const cx = rect.left + rect.width / 2;
@@ -49,6 +57,7 @@ export default function Header() {
       mvX.set(0);
       mvY.set(0);
     }
+
     window.addEventListener("mousemove", onMove);
     window.addEventListener("pointerleave", onLeave);
     return () => {
@@ -66,13 +75,13 @@ export default function Header() {
 
   return (
     <>
-      {/* bg effects with animated particles */}
+      {/* background with particles */}
       <div
         aria-hidden
         className="pointer-events-none fixed inset-x-0 top-0 z-40 flex justify-center"
         style={{ height: 160 }}
       >
-        <div className="w-[90%] max-w-7xl relative">
+        <div className="w-[95%] sm:w-[90%] max-w-7xl relative">
           {/* gradient backdrop */}
           <div
             className="absolute inset-0 rounded-2xl blur-2xl opacity-30 -z-10"
@@ -83,17 +92,17 @@ export default function Header() {
             }}
           />
 
-          {/* animated particles */}
+          {/* particles */}
           <div className="absolute inset-0 -z-10 overflow-hidden">
-            {Array.from({ length: 14 }).map((_, i) => (
+            {Array.from({ length: 8 }).map((_, i) => (
               <span
                 key={i}
                 className="particle"
                 style={{
                   top: `${Math.random() * 100}%`,
                   left: `${Math.random() * 100}%`,
-                  width: `${6 + Math.random() * 10}px`,
-                  height: `${6 + Math.random() * 10}px`,
+                  width: `${6 + Math.random() * 8}px`,
+                  height: `${6 + Math.random() * 8}px`,
                   animationDelay: `${Math.random() * 8}s`,
                   animationDuration: `${6 + Math.random() * 6}s`,
                 }}
@@ -108,7 +117,7 @@ export default function Header() {
         initial={{ y: -40, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.7, ease: "easeOut" }}
-        className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 px-4 py-2 w-[94%] max-w-7xl"
+        className="fixed top-2 sm:top-4 left-1/2 transform -translate-x-1/2 z-50 px-3 sm:px-4 py-2 w-[96%] sm:w-[94%] max-w-7xl"
       >
         <div className="relative rounded-2xl bg-white/6 backdrop-blur-md border border-white/8 shadow-xl overflow-hidden">
           <div
@@ -119,14 +128,14 @@ export default function Header() {
             }}
           />
 
-          <div className="flex items-center justify-between px-4 py-2 sm:px-6 sm:py-3">
-            {/* left: hamburger + logo */}
-            <div className="flex items-center gap-3">
+          <div className="flex items-center justify-between px-3 sm:px-6 py-2 sm:py-3">
+            {/* left side */}
+            <div className="flex items-center gap-2 sm:gap-3">
               {/* mobile hamburger */}
               <div className="md:hidden">
                 <button
                   onClick={() => setMenuOpen(!menuOpen)}
-                  className="text-white/90 hover:text-yellow-300"
+                  className="text-white/90 hover:text-yellow-300 p-1"
                   aria-expanded={menuOpen}
                   aria-label="Toggle Menu"
                 >
@@ -134,6 +143,7 @@ export default function Header() {
                 </button>
               </div>
 
+              {/* logo */}
               <motion.div
                 style={{ x: logoX, y: logoY }}
                 className="flex items-center gap-2 cursor-pointer select-none"
@@ -143,29 +153,27 @@ export default function Header() {
                 <Image
                   src="/Logo.png"
                   alt="Vape Vault Logo"
-                  width={44}
-                  height={44}
-                  className="sm:w-[60px] sm:h-[60px]"
+                  width={40}
+                  height={40}
+                  className="sm:w-[56px] sm:h-[56px]"
                 />
-                <div>
-                  <h1 className="text-lg sm:text-2xl font-bold text-yellow-300 leading-none">
-                    Vape-SPA
-                  </h1>
-                </div>
+                <h1 className="text-base sm:text-xl font-bold text-yellow-300 leading-none">
+                  Vape-SPA
+                </h1>
               </motion.div>
             </div>
 
             {/* desktop nav */}
             <motion.nav
               style={{ x: navX, y: navY }}
-              className="hidden md:flex items-center gap-6"
+              className="hidden md:flex items-center gap-5 lg:gap-6"
               role="navigation"
             >
               {navItems.map((it) => (
                 <Link
                   key={it.href}
                   href={it.href}
-                  className="px-2 py-1 text-white/90 hover:text-yellow-300 transition-transform transform hover:scale-105"
+                  className="px-2 py-1 text-sm lg:text-base text-white/90 hover:text-yellow-300 transition-transform transform hover:scale-105"
                 >
                   {it.label}
                 </Link>
@@ -173,16 +181,16 @@ export default function Header() {
               {user ? (
                 <button
                   onClick={handleLogout}
-                  className="bg-yellow-300 hover:bg-yellow-400 text-black px-4 py-2 rounded-full font-medium shadow-sm"
+                  className="bg-yellow-300 hover:bg-yellow-400 text-black px-3 py-1.5 lg:px-4 lg:py-2 rounded-full font-medium shadow-sm text-sm lg:text-base"
                 >
                   Logout
                 </button>
               ) : (
                 <div className="flex gap-3">
-                  <Link href="/signin" className="text-white/90 hover:text-yellow-300">
+                  <Link href="/signin" className="text-sm lg:text-base text-white/90 hover:text-yellow-300">
                     Sign In
                   </Link>
-                  <Link href="/signup" className="text-white/90 hover:text-yellow-300">
+                  <Link href="/signup" className="text-sm lg:text-base text-white/90 hover:text-yellow-300">
                     Sign Up
                   </Link>
                 </div>
@@ -195,13 +203,15 @@ export default function Header() {
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="md:hidden bg-black/80 backdrop-blur-md border-t border-white/10 px-4 py-4 flex flex-col gap-4"
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.25 }}
+              className="md:hidden bg-black/85 backdrop-blur-md border-t border-white/10 px-4 py-5 flex flex-col gap-5"
             >
               {navItems.map((it) => (
                 <Link
                   key={it.href}
                   href={it.href}
-                  className="text-white/90 hover:text-yellow-300"
+                  className="text-lg text-white/90 hover:text-yellow-300"
                   onClick={() => setMenuOpen(false)}
                 >
                   {it.label}
@@ -213,22 +223,22 @@ export default function Header() {
                     handleLogout();
                     setMenuOpen(false);
                   }}
-                  className="bg-yellow-300 hover:bg-yellow-400 text-black px-4 py-2 rounded-full font-medium shadow-sm"
+                  className="bg-yellow-300 hover:bg-yellow-400 text-black px-4 py-2 rounded-full font-medium shadow-sm text-lg"
                 >
                   Logout
                 </button>
               ) : (
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-4">
                   <Link
                     href="/signin"
-                    className="text-white/90 hover:text-yellow-300"
+                    className="text-lg text-white/90 hover:text-yellow-300"
                     onClick={() => setMenuOpen(false)}
                   >
                     Sign In
                   </Link>
                   <Link
                     href="/signup"
-                    className="text-white/90 hover:text-yellow-300"
+                    className="text-lg text-white/90 hover:text-yellow-300"
                     onClick={() => setMenuOpen(false)}
                   >
                     Sign Up
