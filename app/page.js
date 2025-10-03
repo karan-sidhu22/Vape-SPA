@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import Head from "next/head";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "@/lib/supabaseClient;
 import BrandPromise from "app/components/BrandPromise";
 import SiteFooter from "./components/SiteFooter";
 import { motion } from "framer-motion";
